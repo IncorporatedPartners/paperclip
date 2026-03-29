@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "labelhead-google": {
+      "command": "npx",
+      "args": ["tsx", "packages/mcp-google/src/index.ts"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}",
+        "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}",
+        "GOOGLE_REFRESH_TOKEN": "${GOOGLE_REFRESH_TOKEN}",
+        "GOOGLE_SHEET_ID": "${GOOGLE_SHEET_ID}"
+      }
+    },
+    "labelhead-x": {
+      "command": "npx",
+      "args": ["tsx", "packages/mcp-x/src/index.ts"],
+      "env": {
+        "X_API_KEY": "${X_API_KEY}",
+        "X_API_SECRET": "${X_API_SECRET}",
+        "X_ACCESS_TOKEN": "${X_ACCESS_TOKEN}",
+        "X_ACCESS_TOKEN_SECRET": "${X_ACCESS_TOKEN_SECRET}"
+      }
+    }
+  }
+}
