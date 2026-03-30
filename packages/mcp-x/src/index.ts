@@ -15,7 +15,7 @@ const server = new McpServer({
 
 server.tool(
   "post_tweet",
-  "Post a tweet from the LabelHead X/Twitter account.",
+  "Post a tweet from the @labelheadco X/Twitter account.",
   {
     text: z.string().max(280).describe("Tweet text (max 280 characters)"),
     reply_to_id: z.string().optional().describe("Tweet ID to reply to"),
@@ -42,7 +42,7 @@ server.tool(
   {
     recipient_username: z
       .string()
-      .describe("Username without @ (e.g. 'labelhead')"),
+      .describe("Username without @ (e.g. 'labelheadco')"),
     text: z.string().max(10000).describe("Message text"),
   },
   async (args) => {
