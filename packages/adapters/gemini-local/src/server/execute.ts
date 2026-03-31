@@ -79,6 +79,48 @@ function geminiSkillsHome(): string {
 }
 
 /**
+ * Pre-trust a directory in `~/.gemini/settings.json` so Gemini CLI v0.35+
+ * does not block on the interactive "Do you trust the files in this folder?"
+ * prompt when running non-interactively (stdin=ignore). Without this the
+ * subprocess waits for input that never arrives and exits with code 1.
+ */
+async function ensureGeminiTrustedDirectory(
+  onLog: AdapterExecutionContext["onLog"],
+  directory: string,
+): Promise<void> {
+  const settingsPath = path.join(os.homedir(), ".gemini", "settings.json");
+  try {
+    await fs.mkdir(path.dirname(settingsPath), { recursive: true });
+
+    let settings: Record<string, unknown> = {};
+    try {
+      const raw = await fs.readFile(settingsPath, "utf8");
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        settings = parsed as Record<string, unknown>;
+      }
+    } catch {
+      // File missing or invalid JSON — start fresh
+    }
+
+    const trusted: string[] = Array.isArray(settings.trustedDirectories)
+      ? (settings.trustedDirectories as unknown[]).filter((d): d is string => typeof d === "string")
+      : [];
+
+    if (!trusted.includes(directory)) {
+      settings.trustedDirectories = [...trusted, directory];
+      await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf8");
+      await onLog("stderr", `[paperclip] Trusted Gemini directory: ${directory}\n`);
+    }
+  } catch (err) {
+    await onLog(
+      "stderr",
+      `[paperclip] Warning: could not update Gemini trusted directories in ${settingsPath}: ${err instanceof Error ? err.message : String(err)}\n`,
+    );
+  }
+}
+
+/**
  * Inject Paperclip skills directly into `~/.gemini/skills/` via symlinks.
  * This avoids needing GEMINI_CLI_HOME overrides, so the CLI naturally finds
  * both its auth credentials and the injected skills in the real home directory.
@@ -160,6 +202,12 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const effectiveWorkspaceCwd = useConfiguredInsteadOfAgentHome ? "" : workspaceCwd;
   const cwd = effectiveWorkspaceCwd || configuredCwd || process.cwd();
   await ensureAbsoluteDirectory(cwd, { createIfMissing: true });
+  // Pre-trust the workspace so Gemini CLI v0.35+ doesn't block on the
+  // interactive folder-trust prompt when running non-interactively.
+  await ensureGeminiTrustedDirectory(onLog, cwd);
+  // Also trust the Paperclip root so all agent home paths are covered.
+  await ensureGeminiTrustedDirectory(onLog, "/paperclip");
+
   const geminiSkillEntries = await readPaperclipRuntimeSkillEntries(config, __moduleDir);
   const desiredGeminiSkillNames = resolvePaperclipDesiredSkillNames(config, geminiSkillEntries);
   await ensureGeminiSkillsInjected(onLog, geminiSkillEntries, desiredGeminiSkillNames);
@@ -245,6 +293,78 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
 
   const instructionsFilePath = asString(config.instructionsFilePath, "").trim();
   const instructionsDir = instructionsFilePath ? `${path.dirname(instructionsFilePath)}/` : "";
+
+  // Gemini's file tool restricts reads to the workspace (cwd). When the instructions
+  // directory lives outside the workspace, symlink each file from the instructions
+  // directory directly into the workspace root so the model can read them by their
+  // bare filename (e.g. read_file("labelhead-orchestrator.md") works without any
+  // directory prefix). Also create a .paperclip-agent → agentHome symlink when
+  // agentHome is available, for backwards compatibility.
+  let resolvedInstructionsDir = instructionsDir;
+  if (instructionsFilePath && cwd && instructionsDir) {
+    const isOutsideWorkspace =
+      !instructionsDir.startsWith(cwd + path.sep) && instructionsDir !== cwd + path.sep;
+    if (isOutsideWorkspace) {
+      // Symlink agentHome if available (legacy approach kept for compatibility)
+      if (agentHome) {
+        const normalizedAgentHome = agentHome.endsWith(path.sep) ? agentHome : agentHome + path.sep;
+        if (instructionsDir.startsWith(normalizedAgentHome)) {
+          const agentHomeSymlink = path.join(cwd, ".paperclip-agent");
+          try {
+            try {
+              await fs.rm(agentHomeSymlink, { recursive: true, force: true });
+            } catch {
+              // ignore
+            }
+            await fs.symlink(normalizedAgentHome.slice(0, -1), agentHomeSymlink, "dir");
+            resolvedInstructionsDir = instructionsDir.replace(
+              normalizedAgentHome,
+              agentHomeSymlink + path.sep,
+            );
+          } catch (err) {
+            await onLog(
+              "stderr",
+              `[paperclip] Warning: could not symlink agent home into workspace at ${agentHomeSymlink}: ${err instanceof Error ? err.message : String(err)}\n`,
+            );
+          }
+        }
+      }
+
+      // Symlink each file from the instructions directory into the workspace root
+      // so the model can read them by bare filename without any directory prefix.
+      try {
+        const entries = await fs.readdir(instructionsDir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (!entry.isFile()) continue;
+          const dest = path.join(cwd, entry.name);
+          const src = path.join(instructionsDir, entry.name);
+          // Skip if a real file already exists at the destination
+          try {
+            const stat = await fs.stat(dest);
+            if (stat.isFile()) continue; // real file present — don't overwrite
+          } catch {
+            // destination doesn't exist — safe to symlink
+          }
+          try {
+            // Remove stale symlink if present, then create a fresh one
+            try { await fs.unlink(dest); } catch { /* no stale link */ }
+            await fs.symlink(src, dest, "file");
+          } catch (err) {
+            await onLog(
+              "stderr",
+              `[paperclip] Warning: could not symlink instruction file "${entry.name}" into workspace: ${err instanceof Error ? err.message : String(err)}\n`,
+            );
+          }
+        }
+      } catch (err) {
+        await onLog(
+          "stderr",
+          `[paperclip] Warning: could not list instruction files in "${instructionsDir}": ${err instanceof Error ? err.message : String(err)}\n`,
+        );
+      }
+    }
+  }
+
   let instructionsPrefix = "";
   if (instructionsFilePath) {
     try {
@@ -252,7 +372,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       instructionsPrefix =
         `${instructionsContents}\n\n` +
         `The above agent instructions were loaded from ${instructionsFilePath}. ` +
-        `Resolve any relative file references from ${instructionsDir}.\n\n`;
+        `Resolve any relative file references from ${resolvedInstructionsDir}.\n\n`;
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
       await onLog(
@@ -268,7 +388,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     if (instructionsPrefix.length > 0) {
       notes.push(
         `Loaded agent instructions from ${instructionsFilePath}`,
-        `Prepended instructions + path directive to prompt (relative references from ${instructionsDir}).`,
+        `Prepended instructions + path directive to prompt (relative references from ${resolvedInstructionsDir}).`,
       );
       return notes;
     }
@@ -392,6 +512,13 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     }
 
     const clearSessionForTurnLimit = isGeminiTurnLimitResult(attempt.parsed.resultEvent, attempt.proc.exitCode);
+    // If the run failed without producing a result event, the session may be in a
+    // broken state (e.g. mid-tool-execution with no model response saved). Clear it
+    // so the next run starts fresh rather than resuming a corrupt session.
+    const clearSessionForUnexplainedFailure =
+      (attempt.proc.exitCode ?? 0) !== 0 &&
+      attempt.parsed.resultEvent === null &&
+      !attempt.proc.timedOut;
 
     // On retry, don't fall back to old session ID — the old session was stale
     const canFallbackToRuntimeSession = !isRetry;
@@ -438,7 +565,10 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       },
       summary: attempt.parsed.summary,
       question: attempt.parsed.question,
-      clearSession: clearSessionForTurnLimit || Boolean(clearSessionOnMissingSession && !resolvedSessionId),
+      clearSession:
+        clearSessionForTurnLimit ||
+        clearSessionForUnexplainedFailure ||
+        Boolean(clearSessionOnMissingSession && !resolvedSessionId),
     };
   };
 
