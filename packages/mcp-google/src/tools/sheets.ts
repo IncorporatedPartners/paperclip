@@ -15,6 +15,10 @@ const TRACKERS = {
   sponsor_pipeline: "Sponsor Pipeline",
   waitlist: "Waitlist",
   candidate_tracker: "Candidate Tracker",
+  weekly_founder_input: "Weekly Founder Input",
+  weekly_syndicate_output: "Weekly Syndicate Output",
+  journalist_articles: "Journalist Articles",
+  newsletter_acquisition_pipeline: "Newsletter Acquisition Pipeline",
 } as const;
 
 export type TrackerName = keyof typeof TRACKERS;
@@ -23,7 +27,7 @@ export type TrackerName = keyof typeof TRACKERS;
 
 export const readTrackerSchema = z.object({
   tracker: z
-    .enum(["vc_pipeline", "sponsor_pipeline", "waitlist", "candidate_tracker"])
+    .enum(["vc_pipeline", "sponsor_pipeline", "waitlist", "candidate_tracker", "weekly_founder_input", "weekly_syndicate_output", "journalist_articles", "newsletter_acquisition_pipeline"])
     .describe("Which tracker sheet to read"),
   range: z
     .string()
@@ -41,7 +45,7 @@ export const readTrackerSchema = z.object({
 
 export const writeTrackerSchema = z.object({
   tracker: z
-    .enum(["vc_pipeline", "sponsor_pipeline", "waitlist", "candidate_tracker"])
+    .enum(["vc_pipeline", "sponsor_pipeline", "waitlist", "candidate_tracker", "weekly_founder_input", "weekly_syndicate_output", "journalist_articles", "newsletter_acquisition_pipeline"])
     .describe("Which tracker sheet to append to"),
   rows: z
     .array(z.array(z.string()))
@@ -51,7 +55,7 @@ export const writeTrackerSchema = z.object({
 
 export const updateTrackerRowSchema = z.object({
   tracker: z
-    .enum(["vc_pipeline", "sponsor_pipeline", "waitlist", "candidate_tracker"])
+    .enum(["vc_pipeline", "sponsor_pipeline", "waitlist", "candidate_tracker", "weekly_founder_input", "weekly_syndicate_output", "journalist_articles", "newsletter_acquisition_pipeline"])
     .describe("Which tracker sheet to update"),
   row_number: z
     .number()

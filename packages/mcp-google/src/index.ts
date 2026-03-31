@@ -57,7 +57,7 @@ server.tool(
 
 server.tool(
   "read_tracker",
-  "Read rows from a LabelHead tracker sheet (VC Pipeline, Sponsor Pipeline, Waitlist, or Candidate Tracker).",
+  "Read rows from a LabelHead tracker sheet.",
   {
     tracker: z
       .enum([
@@ -65,6 +65,10 @@ server.tool(
         "sponsor_pipeline",
         "waitlist",
         "candidate_tracker",
+        "weekly_founder_input",
+        "weekly_syndicate_output",
+        "journalist_articles",
+        "newsletter_acquisition_pipeline",
       ])
       .describe("Which tracker to read"),
     range: z
@@ -102,6 +106,10 @@ server.tool(
         "sponsor_pipeline",
         "waitlist",
         "candidate_tracker",
+        "weekly_founder_input",
+        "weekly_syndicate_output",
+        "journalist_articles",
+        "newsletter_acquisition_pipeline",
       ])
       .describe("Which tracker to append to"),
     rows: z
@@ -135,6 +143,10 @@ server.tool(
         "sponsor_pipeline",
         "waitlist",
         "candidate_tracker",
+        "weekly_founder_input",
+        "weekly_syndicate_output",
+        "journalist_articles",
+        "newsletter_acquisition_pipeline",
       ])
       .describe("Which tracker to update"),
     row_number: z
