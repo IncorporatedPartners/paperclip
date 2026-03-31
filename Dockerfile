@@ -1,6 +1,6 @@
 FROM node:lts-trixie-slim AS base
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates curl git \
+  && apt-get install -y --no-install-recommends ca-certificates curl git procps \
   && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 
@@ -22,6 +22,7 @@ COPY packages/adapters/opencode-local/package.json packages/adapters/opencode-lo
 COPY packages/adapters/pi-local/package.json packages/adapters/pi-local/
 COPY packages/plugins/sdk/package.json packages/plugins/sdk/
 COPY packages/mcp-google/package.json packages/mcp-google/
+COPY packages/mcp-public/package.json packages/mcp-public/
 COPY packages/mcp-x/package.json packages/mcp-x/
 COPY patches/ patches/
 
@@ -39,7 +40,7 @@ RUN test -f server/dist/index.js || (echo "ERROR: server build output missing" &
 FROM base AS production
 WORKDIR /app
 COPY --chown=node:node --from=build /app /app
-RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest opencode-ai \
+RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest opencode-ai @google/gemini-cli@latest \
   && mkdir -p /paperclip \
   && chown node:node /paperclip
 
