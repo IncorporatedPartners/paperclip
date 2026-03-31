@@ -8,3 +8,5 @@ coverage
 data
 tmp
 *.log
+!packages/mcp-public/src/data/
+!packages/mcp-public/src/data/**
