@@ -1,0 +1,3 @@
+# Allow src/data — this is source code, not generated data
+!src/data/
+!src/data/**
