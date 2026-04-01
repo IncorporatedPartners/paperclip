@@ -341,10 +341,12 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
           if (!entry.isFile()) continue;
           const dest = path.join(cwd, entry.name);
           const src = path.join(instructionsDir, entry.name);
-          // Skip if a real file already exists at the destination
+          // Skip only if a real (non-symlink) file already exists at the destination.
+          // Use lstat so we detect stale symlinks left by older deployments and
+          // replace them with real copies that gemini-cli's realpath check accepts.
           try {
-            const stat = await fs.stat(dest);
-            if (stat.isFile()) continue; // real file present — don't overwrite
+            const stat = await fs.lstat(dest);
+            if (stat.isFile()) continue; // real file (not symlink) — don't overwrite
           } catch {
             // destination doesn't exist — safe to copy
           }
