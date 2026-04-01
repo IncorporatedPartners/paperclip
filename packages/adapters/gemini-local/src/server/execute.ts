@@ -330,8 +330,11 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         }
       }
 
-      // Symlink each file from the instructions directory into the workspace root
+      // Copy each file from the instructions directory into the workspace root
       // so the model can read them by bare filename without any directory prefix.
+      // We copy rather than symlink so gemini-cli's workspace check (which may
+      // resolve symlinks via realpath) does not reject the file.
+      let copiedAny = false;
       try {
         const entries = await fs.readdir(instructionsDir, { withFileTypes: true });
         for (const entry of entries) {
@@ -343,16 +346,17 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
             const stat = await fs.stat(dest);
             if (stat.isFile()) continue; // real file present — don't overwrite
           } catch {
-            // destination doesn't exist — safe to symlink
+            // destination doesn't exist — safe to copy
           }
           try {
-            // Remove stale symlink if present, then create a fresh one
+            // Remove stale symlink if present, then copy
             try { await fs.unlink(dest); } catch { /* no stale link */ }
-            await fs.symlink(src, dest, "file");
+            await fs.copyFile(src, dest);
+            copiedAny = true;
           } catch (err) {
             await onLog(
               "stderr",
-              `[paperclip] Warning: could not symlink instruction file "${entry.name}" into workspace: ${err instanceof Error ? err.message : String(err)}\n`,
+              `[paperclip] Warning: could not copy instruction file "${entry.name}" into workspace: ${err instanceof Error ? err.message : String(err)}\n`,
             );
           }
         }
@@ -361,6 +365,11 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
           "stderr",
           `[paperclip] Warning: could not list instruction files in "${instructionsDir}": ${err instanceof Error ? err.message : String(err)}\n`,
         );
+      }
+      // Tell the model to resolve references from the workspace root where
+      // the files now live, not from the original absolute path.
+      if (copiedAny) {
+        resolvedInstructionsDir = cwd + path.sep;
       }
     }
   }
