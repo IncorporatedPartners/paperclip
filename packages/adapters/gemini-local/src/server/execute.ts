@@ -380,10 +380,35 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   if (instructionsFilePath) {
     try {
       const instructionsContents = await fs.readFile(instructionsFilePath, "utf8");
+
+      // Pre-load all sibling instruction files so the model never needs to use
+      // read_file on them — gemini-cli @latest enforces strict workspace boundaries
+      // (resolving symlinks via realpath), making out-of-workspace reads impossible.
+      let inlinedFiles = "";
+      if (instructionsDir) {
+        try {
+          const entries = await fs.readdir(instructionsDir, { withFileTypes: true });
+          for (const entry of entries) {
+            if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+            if (path.join(instructionsDir, entry.name) === instructionsFilePath) continue;
+            try {
+              const content = await fs.readFile(path.join(instructionsDir, entry.name), "utf8");
+              inlinedFiles += `\n\n=== ${entry.name} ===\n${content}`;
+            } catch {
+              // skip unreadable files
+            }
+          }
+        } catch {
+          // skip if directory unreadable
+        }
+      }
+
       instructionsPrefix =
-        `${instructionsContents}\n\n` +
-        `The above agent instructions were loaded from ${instructionsFilePath}. ` +
-        `Resolve any relative file references from ${resolvedInstructionsDir}.\n\n`;
+        `${instructionsContents}` +
+        (inlinedFiles
+          ? `\n\nThe following skill/reference files are pre-loaded for your reference — do NOT use read_file to access them, their full content is already above:\n${inlinedFiles}\n\n`
+          : "") +
+        `\n\nThe above agent instructions were loaded from ${instructionsFilePath}.\n\n`;
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
       await onLog(
