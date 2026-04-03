@@ -44,12 +44,12 @@ export const statusBadge: Record<string, string> = {
   // Agent statuses
   active: "bg-[#22C55E14] text-[#22C55E] border border-[#22C55E33]",
   running: "bg-[#00E5FF14] text-[#00E5FF] border border-[#00E5FF33]",
-  paused: "bg-[#1A1A1A] text-[#8A8880] border border-[#222222]",
-  idle: "bg-[#1A1A1A] text-[#8A8880] border border-[#222222]",
-  archived: "bg-[#1A1A1A] text-[#4A4845] border border-[#222222]",
+  paused: "bg-[#151B2D] text-[#A8B2D2] border border-[#1A2035]",
+  idle: "bg-[#151B2D] text-[#A8B2D2] border border-[#1A2035]",
+  archived: "bg-[#151B2D] text-[#666977] border border-[#1A2035]",
 
   // Goal statuses
-  planned: "bg-[#1A1A1A] text-[#8A8880] border border-[#222222]",
+  planned: "bg-[#151B2D] text-[#A8B2D2] border border-[#1A2035]",
   achieved: "bg-[#22C55E14] text-[#22C55E] border border-[#22C55E33]",
   completed: "bg-[#22C55E14] text-[#22C55E] border border-[#22C55E33]",
 
@@ -68,16 +68,16 @@ export const statusBadge: Record<string, string> = {
   rejected: "bg-[#EF444414] text-[#EF4444] border border-[#EF444433]",
 
   // Issue statuses
-  backlog: "bg-[#1A1A1A] text-[#4A4845] border border-[#222222]",
-  todo: "bg-[#1A1A1A] text-[#8A8880] border border-[#222222]",
+  backlog: "bg-[#151B2D] text-[#666977] border border-[#1A2035]",
+  todo: "bg-[#151B2D] text-[#A8B2D2] border border-[#1A2035]",
   in_progress: "bg-[#F59E0B14] text-[#F59E0B] border border-[#F59E0B33]",
   in_review: "bg-[#00E5FF14] text-[#00E5FF] border border-[#00E5FF33]",
   blocked: "bg-[#EF444414] text-[#EF4444] border border-[#EF444433]",
   done: "bg-[#22C55E14] text-[#22C55E] border border-[#22C55E33]",
-  cancelled: "bg-[#1A1A1A] text-[#4A4845] border border-[#222222]",
+  cancelled: "bg-[#151B2D] text-[#666977] border border-[#1A2035]",
 };
 
-export const statusBadgeDefault = "bg-[#1A1A1A] text-[#4A4845] border border-[#222222]";
+export const statusBadgeDefault = "bg-[#151B2D] text-[#666977] border border-[#1A2035]";
 
 // ---------------------------------------------------------------------------
 // Agent status dot — solid background for small indicator dots
@@ -87,14 +87,14 @@ export const statusBadgeDefault = "bg-[#1A1A1A] text-[#4A4845] border border-[#2
 export const agentStatusDot: Record<string, string> = {
   running: "bg-[#00E5FF]",
   active: "bg-[#22C55E]",
-  paused: "bg-[#4A4845]",
-  idle: "bg-[#4A4845]",
+  paused: "bg-[#666977]",
+  idle: "bg-[#666977]",
   pending_approval: "bg-[#F59E0B]",
   error: "bg-[#EF4444]",
-  archived: "bg-[#2A2A2A]",
+  archived: "bg-[#26304A]",
 };
 
-export const agentStatusDotDefault = "bg-[#2A2A2A]";
+export const agentStatusDotDefault = "bg-[#26304A]";
 
 // ---------------------------------------------------------------------------
 // Priority colors

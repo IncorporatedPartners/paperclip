@@ -42,8 +42,8 @@ export function SidebarNavItem({
           // LabelHead sidebar nav item — left border indicator for active, no bg fill
           "relative flex items-center gap-2.5 px-3 py-1.5 text-[13px] transition-colors",
           isActive
-            ? "font-medium text-[#F2F0EB] border-l-2 border-[#00E5FF] pl-[10px]"
-            : "font-normal text-[#8A8880] border-l-2 border-transparent pl-[10px] hover:bg-[#1A1A1A] hover:text-[#F2F0EB]",
+            ? "font-medium text-[#EAF0FF] border-l-2 border-[#00E5FF] pl-[10px]"
+            : "font-normal text-[#A8B2D2] border-l-2 border-transparent pl-[10px] hover:bg-[#151B2D] hover:text-[#EAF0FF]",
           className,
         )
       }
@@ -61,7 +61,7 @@ export function SidebarNavItem({
             "ml-auto rounded-md px-1 py-0.5 text-[10px] font-medium leading-none",
             textBadgeTone === "amber"
               ? "bg-[#F59E0B14] text-[#F59E0B] border border-[#F59E0B33]"
-              : "bg-[#1A1A1A] text-[#4A4845] border border-[#222222]",
+              : "bg-[#151B2D] text-[#666977] border border-[#1A2035]",
           )}
         >
           {textBadge}
@@ -80,7 +80,7 @@ export function SidebarNavItem({
             "ml-auto rounded-md px-1 py-0.5 text-[10px] leading-none font-medium",
             badgeTone === "danger"
               ? "bg-[#EF444414] text-[#EF4444] border border-[#EF444433]"
-              : "bg-[#1A1A1A] text-[#8A8880] border border-[#222222]",
+              : "bg-[#151B2D] text-[#A8B2D2] border border-[#1A2035]",
           )}
         >
           {badge}

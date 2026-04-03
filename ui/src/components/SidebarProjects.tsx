@@ -80,8 +80,8 @@ function SortableProjectItem({
           className={cn(
             "relative flex items-center gap-2.5 px-3 py-1.5 pl-[10px] text-[13px] transition-colors border-l-2",
             activeProjectRef === routeRef || activeProjectRef === project.id
-              ? "font-medium text-[#F2F0EB] border-[#00E5FF]"
-              : "font-normal text-[#8A8880] border-transparent hover:bg-[#111111] hover:text-[#F2F0EB]",
+              ? "font-medium text-[#EAF0FF] border-[#00E5FF]"
+              : "font-normal text-[#A8B2D2] border-transparent hover:bg-[#0A0E1A] hover:text-[#EAF0FF]",
           )}
         >
           <span
@@ -180,11 +180,11 @@ export function SidebarProjects() {
           <CollapsibleTrigger className="flex items-center gap-1 flex-1 min-w-0">
             <ChevronRight
               className={cn(
-                "h-3 w-3 text-[#4A4845] transition-transform opacity-0 group-hover:opacity-100",
+                "h-3 w-3 text-[#666977] transition-transform opacity-0 group-hover:opacity-100",
                 open && "rotate-90"
               )}
             />
-            <span className="text-[10px] font-medium uppercase text-[#4A4845]" style={{ letterSpacing: '0.08em' }}>
+            <span className="text-[10px] font-medium uppercase text-[#666977]" style={{ letterSpacing: '0.08em' }}>
               Projects
             </span>
           </CollapsibleTrigger>
@@ -193,7 +193,7 @@ export function SidebarProjects() {
               e.stopPropagation();
               openNewProject();
             }}
-            className="flex items-center justify-center h-4 w-4 rounded text-[#4A4845] hover:text-[#8A8880] transition-colors"
+            className="flex items-center justify-center h-4 w-4 rounded text-[#666977] hover:text-[#A8B2D2] transition-colors"
             aria-label="New project"
           >
             <Plus className="h-3 w-3" />

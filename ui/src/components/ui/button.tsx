@@ -10,20 +10,20 @@ const buttonVariants = cva(
     variants: {
       variant: {
         // Primary — off-white fill, black text
-        default: "bg-[#F2F0EB] text-[#0A0A0A] hover:bg-white border-none shadow-none",
+        default: "bg-[#EAF0FF] text-[#050811] hover:bg-white border-none shadow-none",
         // Destructive — transparent with red border/text
         destructive:
           "bg-transparent text-[#EF4444] border border-[#EF444433] hover:bg-[#EF44440D] shadow-none",
         // Outline / secondary — ghost with border
         outline:
-          "bg-transparent text-[#8A8880] border border-[#222222] hover:border-[#2A2A2A] hover:text-[#F2F0EB] shadow-none",
+          "bg-transparent text-[#A8B2D2] border border-[#1A2035] hover:border-[#26304A] hover:text-[#EAF0FF] shadow-none",
         // Secondary — subtle filled
         secondary:
-          "bg-[#1A1A1A] text-[#8A8880] border border-[#222222] hover:border-[#2A2A2A] hover:text-[#F2F0EB] shadow-none",
+          "bg-[#151B2D] text-[#A8B2D2] border border-[#1A2035] hover:border-[#26304A] hover:text-[#EAF0FF] shadow-none",
         // Ghost — no border, no fill
         ghost:
-          "bg-transparent text-[#8A8880] hover:bg-[#1A1A1A] hover:text-[#F2F0EB] border-none shadow-none",
-        link: "text-[#F2F0EB] underline-offset-4 hover:underline border-none shadow-none",
+          "bg-transparent text-[#A8B2D2] hover:bg-[#151B2D] hover:text-[#EAF0FF] border-none shadow-none",
+        link: "text-[#EAF0FF] underline-offset-4 hover:underline border-none shadow-none",
       },
       size: {
         default: "h-8 px-3 py-1.5 has-[>svg]:px-2.5",

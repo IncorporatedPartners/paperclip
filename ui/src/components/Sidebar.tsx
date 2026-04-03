@@ -47,8 +47,8 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 h-full min-h-0 bg-[#0A0A0A] p-2 pr-0 flex flex-col">
-      <div className="flex-1 min-h-0 rounded-2xl bg-[#111111] flex flex-col overflow-hidden">
+    <aside className="w-60 h-full min-h-0 bg-[#050811] p-2 pr-0 flex flex-col">
+      <div className="flex-1 min-h-0 rounded-2xl bg-[#0A0E1A] flex flex-col overflow-hidden">
       {/* Top bar: Company name + Search */}
       <div className="flex items-center gap-1 px-3 h-12 shrink-0">
         {selectedCompany?.brandColor && (
@@ -57,7 +57,7 @@ export function Sidebar() {
             style={{ backgroundColor: selectedCompany.brandColor }}
           />
         )}
-        <span className="flex-1 text-[13px] font-semibold text-[#F2F0EB] truncate pl-1">
+        <span className="flex-1 text-[13px] font-semibold text-[#EAF0FF] truncate pl-1">
           {selectedCompany?.name ?? "Select company"}
         </span>
       </div>
@@ -66,7 +66,7 @@ export function Sidebar() {
       <div className="px-3 pb-2 shrink-0">
         <button
           onClick={openSearch}
-          className="flex items-center gap-2 w-full rounded-full bg-[#1A1A1A] px-3 py-1.5 text-[12px] text-[#4A4845] hover:text-[#8A8880] transition-colors"
+          className="flex items-center gap-2 w-full rounded-full bg-[#151B2D] px-3 py-1.5 text-[12px] text-[#666977] hover:text-[#A8B2D2] transition-colors"
         >
           <Search className="h-3 w-3 shrink-0" />
           <span>Search dashboard...</span>
@@ -78,7 +78,7 @@ export function Sidebar() {
           {/* New Issue button */}
           <button
             onClick={() => openNewIssue()}
-            className="relative flex items-center gap-2.5 px-3 py-1.5 pl-[10px] text-[13px] font-normal text-[#8A8880] border-l-2 border-transparent hover:bg-[#1A1A1A] hover:text-[#F2F0EB] transition-colors"
+            className="relative flex items-center gap-2.5 px-3 py-1.5 pl-[10px] text-[13px] font-normal text-[#A8B2D2] border-l-2 border-transparent hover:bg-[#151B2D] hover:text-[#EAF0FF] transition-colors"
           >
             <SquarePen className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">New Issue</span>
