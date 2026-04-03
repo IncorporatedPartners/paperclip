@@ -76,11 +76,11 @@ export function SidebarAgents() {
           <CollapsibleTrigger className="flex items-center gap-1 flex-1 min-w-0">
             <ChevronRight
               className={cn(
-                "h-3 w-3 text-muted-foreground/60 transition-transform opacity-0 group-hover:opacity-100",
+                "h-3 w-3 text-[#4A4845] transition-transform opacity-0 group-hover:opacity-100",
                 open && "rotate-90"
               )}
             />
-            <span className="text-[10px] font-medium uppercase tracking-widest font-mono text-muted-foreground/60">
+            <span className="text-[10px] font-medium uppercase text-[#4A4845]" style={{ letterSpacing: '0.08em' }}>
               Agents
             </span>
           </CollapsibleTrigger>
@@ -89,7 +89,7 @@ export function SidebarAgents() {
               e.stopPropagation();
               openNewAgent();
             }}
-            className="flex items-center justify-center h-4 w-4 rounded text-muted-foreground/60 hover:text-foreground hover:bg-accent/50 transition-colors"
+            className="flex items-center justify-center h-4 w-4 rounded text-[#4A4845] hover:text-[#8A8880] transition-colors"
             aria-label="New agent"
           >
             <Plus className="h-3 w-3" />
@@ -109,13 +109,14 @@ export function SidebarAgents() {
                   if (isMobile) setSidebarOpen(false);
                 }}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-1.5 text-[13px] font-medium transition-colors",
+                  // LabelHead agent nav item — matches SidebarNavItem pattern
+                  "relative flex items-center gap-2.5 px-3 py-1.5 pl-[10px] text-[13px] transition-colors border-l-2",
                   activeAgentId === agentRouteRef(agent)
-                    ? "bg-accent text-foreground"
-                    : "text-foreground/80 hover:bg-accent/50 hover:text-foreground"
+                    ? "font-medium text-[#F2F0EB] border-[#00E5FF]"
+                    : "font-normal text-[#8A8880] border-transparent hover:bg-[#111111] hover:text-[#F2F0EB]"
                 )}
               >
-                <AgentIcon icon={agent.icon} className="shrink-0 h-3.5 w-3.5 text-muted-foreground" />
+                <AgentIcon icon={agent.icon} className="shrink-0 h-3.5 w-3.5 text-[#4A4845]" />
                 <span className="flex-1 truncate">{agent.name}</span>
                 {(agent.pauseReason === "budget" || runCount > 0) && (
                   <span className="ml-auto flex items-center gap-1.5 shrink-0">
@@ -123,14 +124,12 @@ export function SidebarAgents() {
                       <BudgetSidebarMarker title="Agent paused by budget" />
                     ) : null}
                     {runCount > 0 ? (
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                      </span>
+                      // Static dot — no pulse per LabelHead design spec
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF]" />
                     ) : null}
                     {runCount > 0 ? (
-                      <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">
-                        {runCount} live
+                      <span className="text-[11px] font-medium text-[#00E5FF] tabular-nums">
+                        {runCount}
                       </span>
                     ) : null}
                   </span>

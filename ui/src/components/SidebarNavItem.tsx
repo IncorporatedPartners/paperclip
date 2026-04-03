@@ -39,28 +39,29 @@ export function SidebarNavItem({
       onClick={() => { if (isMobile) setSidebarOpen(false); }}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors",
+          // LabelHead sidebar nav item — left border indicator for active, no bg fill
+          "relative flex items-center gap-2.5 px-3 py-1.5 text-[13px] transition-colors",
           isActive
-            ? "bg-accent text-foreground"
-            : "text-foreground/80 hover:bg-accent/50 hover:text-foreground",
+            ? "font-medium text-[#F2F0EB] border-l-2 border-[#00E5FF] pl-[10px]"
+            : "font-normal text-[#8A8880] border-l-2 border-transparent pl-[10px] hover:bg-[#1A1A1A] hover:text-[#F2F0EB]",
           className,
         )
       }
     >
       <span className="relative shrink-0">
-        <Icon className="h-4 w-4" />
+        <Icon className="h-3.5 w-3.5" />
         {alert && (
-          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_2px_hsl(var(--background))]" />
+          <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-[#EF4444]" />
         )}
       </span>
       <span className="flex-1 truncate">{label}</span>
       {textBadge && (
         <span
           className={cn(
-            "ml-auto rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none",
+            "ml-auto rounded-md px-1 py-0.5 text-[10px] font-medium leading-none",
             textBadgeTone === "amber"
-              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
-              : "bg-muted text-muted-foreground",
+              ? "bg-[#F59E0B14] text-[#F59E0B] border border-[#F59E0B33]"
+              : "bg-[#1A1A1A] text-[#4A4845] border border-[#222222]",
           )}
         >
           {textBadge}
@@ -68,20 +69,18 @@ export function SidebarNavItem({
       )}
       {liveCount != null && liveCount > 0 && (
         <span className="ml-auto flex items-center gap-1.5">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-          </span>
-          <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">{liveCount} live</span>
+          {/* Static dot — no pulse per LabelHead design spec */}
+          <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF]" />
+          <span className="text-[11px] font-medium text-[#00E5FF] tabular-nums">{liveCount}</span>
         </span>
       )}
       {badge != null && badge > 0 && (
         <span
           className={cn(
-            "ml-auto rounded-full px-1.5 py-0.5 text-xs leading-none",
+            "ml-auto rounded-md px-1 py-0.5 text-[10px] leading-none font-medium",
             badgeTone === "danger"
-              ? "bg-red-600/90 text-red-50"
-              : "bg-primary text-primary-foreground",
+              ? "bg-[#EF444414] text-[#EF4444] border border-[#EF444433]"
+              : "bg-[#1A1A1A] text-[#8A8880] border border-[#222222]",
           )}
         >
           {badge}
