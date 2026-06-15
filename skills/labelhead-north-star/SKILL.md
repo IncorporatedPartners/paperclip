@@ -15,54 +15,103 @@ description: >
   implementation, or strategic direction — even if the user does not explicitly
   reference it.
 ---
+
 # LabelHead North Star
-**Version:** 3.1
+**Version:** 3.3
 **Status:** Living document — update when founder approves new decisions
-**Last updated:** June 2026
-**Supersedes:** Version 3.0 (June 2026), Version 2.0 (June 2026), Version 1.0 (March 2026)
+**Last updated:** 2026-06-12 (Phase 1 engineering close, T5-R4 GREEN)
+**Supersedes:** Version 3.2 (June 2026), Version 3.1 (June 2026), Version 2.0 (June 2026), Version 1.0 (March 2026)
+
+**v3.3 change summary (SCOPE: technical/engineering canon ONLY — all founder-ratified 2026-06-10 → 06-12; the business strategy, marketplace architecture, LFA, GTM, API, and revenue sections below are UNCHANGED from v3.2):**
+1. Acceleration source = C.1b LIVE in production (Songstats velocity arithmetic + min-base guardrail; per-artist legacy fallback) — first full traversal of the source-promotion path; certified SIM-04 → SIM-07
+2. A&R Alpha sub-weights RATIFIED (ownership 0.6 / timing 0.2 / conviction 0.1 / concentration 0.1) — no longer interim
+3. Variant B release-aware baseline adjustment live (factor 0.40); release floors REMOVED (last `event_type` read in scoring eliminated)
+4. cycle_rank semantics canonical for the first time: single-count aggregation, ≤W bound, standard competition tie-break (1-2-2-4, exact equality)
+5. Narrative pipeline integrity: idempotent event clustering + rollup max-guard (one logical event counts once)
+6. Identity doctrine canonical after the seed-corruption forensic episode (census CLEAN; validator hardened; machines propose / humans ratify)
+7. Gate T5.2 → T5.2′ (recompute-from-persisted-inputs, bit-identical) per Law 7; Phase 1 closed T5-R4 GREEN; platform live at `v3-apple @ 7609611`
+8. Quarters/Form Table and amendment-window timing: both FORMALLY DEFERRED to Season 2 planning (see Decisions sections)
+Full technical detail: the "Phase 1 Engineering Record" section near the end of this document + SCORING_SPEC.md v1.1 (repo) + `sim/reports/` certificates.
+
+**v3.2 change summary (all founder-ratified June 2026):**
+1. A&R Alpha range compressed to 0.7–1.5 with logarithmic ownership curve (was 0.1–2.0 linear)
+2. Flex/core Cycle score split locked: core 80% / flex 20%; flex = 100% of daily score
+3. Field aging rule adopted: rosters unconfirmed for 3 consecutive Cycles exit the field
+4. directBeefBonus removed from Momentum Score; beef becomes a display-layer event object
+5. Daily prize formula changed: best Alpha-adjusted single pick of the day (was highest aggregate)
+6. Week 1 batch settlement adopted; draft timing zeroed for the initial draft
+7. Partner-media exclusion rule adopted for Cultural Gravity
+8. Call Record adopted as a first-class platform object (Founding Season launch scope)
+9. Settlement P&L ledger adopted as launch scope
+10. Notification taxonomy locked: Signal / Verdict / Window only
+
 ---
+
 ## The One-Sentence Vision
+
 LabelHead is the permanent competitive infrastructure for cultural foresight — a
 two-sided marketplace where competitors earn on their cultural knowledge and artists
 build the momentum that makes them worth knowing about.
+
 ---
+
 ## The Overarching Thesis
+
 Sports and music are built on the same foundation — elite talent, devoted fans,
 cultural obsession. Sports built a $500B+ ecosystem. Music is at $54B with a $0
 participation economy. The difference is not cultural relevance. It is architecture.
+
 Sports built an organizational competition layer — leagues, teams, standardized
 metrics, a governed format. That layer unlocked everything downstream: betting,
 fantasy, prediction markets, a $200B participation economy. Music never got that
 layer. LabelHead is that layer.
+
 The box score was not just a game mechanic. It was the standardized measurement
 infrastructure that made everything downstream possible. Once a shared, trusted,
 independently verifiable number existed, the entire sports ecosystem unlocked.
 The LabelHead Momentum Score is that number for music.
+
 ### Key Numbers — Use Precisely
 - **$446B** = gap between total sports ecosystem ($500B+) and music ecosystem ($54B)
 - **$200B** = sports participation economy vs music's $0
 - **$54B** = music's current total ecosystem — not zero, growing at 10% YoY
 - **$28.6B** = global recorded music revenue at historic highs
+
 ---
+
 ## The Marketplace Architecture (CANONICAL)
+
 LabelHead is a two-sided marketplace. One platform. Two entry points.
+
 **DEMAND SIDE — Competitors (LabelHead Competition Platform)**
 Cultural tastemakers who build fictitious labels and draft real artists. Points earned
 when rosters outperform cultural expectations. The leaderboard is public and permanent.
 Status: Live — Founding Season Q2 2026
+
 **SUPPLY SIDE — Artists (LabelHead for Artists)**
 Unsigned artists who get the professional career infrastructure every breaking artist
 has but almost no one can access before the deal. Twelve specialized AI agents running
 simultaneously, building the Momentum Score that competitors draft them on.
 Status: Score checker live — Agent service launches Season 2
+
 **The Neutrality Principle:**
 LabelHead has no institutional allegiance. It reads third-party data from sources
 neither side controls. An artist signed to Roc Nation, Gamma, or UMG is scored
 identically. LabelHead is the neutral arbiter — the first platform in music history
 that scores cultural performance with no economic stake in any artist's label,
 distributor, or publisher.
+
+**The Partner Integrity Rule (NEW — v3.2):**
+Media sources contractually partnered with LabelHead (podcast hosts, future
+publication partners) are excluded from Cultural Gravity computation for any artist
+that partner's competitor account currently rosters. Even our partners cannot move
+their own scores. This rule is public-facing and is a credibility asset — state it
+proactively in institutional and press contexts.
+
 ---
+
 ## What LabelHead Is (And Is Not)
+
 ### It IS:
 - A structured, skill-based competition platform built on real streaming and cultural data
 - A two-sided marketplace: competitors on demand side, artists on supply side
@@ -72,6 +121,8 @@ distributor, or publisher.
 - A premium, invite-only experience that people want to be seen competing in
 - The neutral arbiter of cultural momentum — no institutional allegiances
 - A music industry utility: the Momentum Score is the standardized metric music never had
+- A receipts machine: every call is timestamped, saturation-stamped, and permanent
+
 ### It Is NOT:
 - A gambling platform or prediction market
 - A social network or music discovery app
@@ -79,462 +130,422 @@ distributor, or publisher.
 - A game in the casual sense
 - Open to everyone — scarcity is structural, not incidental
 - A platform with exclusive artist picks (shared draft pool is fundamental)
+
 ---
-## SCORING ARCHITECTURE — CANONICAL v3.0
+
+## SCORING ARCHITECTURE — CANONICAL v3.2
 ### Supersedes all prior scoring definitions. Effective June 2026.
+
 ═══════════════════════════════════════════════════════
-THE MASTER PHRASE (use verbatim in all contexts):
+THE MASTER PHRASE (canonical — do not alter):
 "Momentum measures the artist. Motion measures the label."
-THE FORMULA:
+
+FORMULA (canonical):
 Momentum Score × A&R Alpha = Motion Score
+
+**CADENCE CLARIFICATION (v3.3, 2026-06-12):** Motion is the INSTANTANEOUS label-value of a pick. The competition format (daily vs weekly) sets the SETTLEMENT WINDOW over which Motion accumulates into the roster's `total_points` — it does NOT rescale the Motion number. The same pick shows the same Motion in any competition; only the aggregation period differs. (Rescaling by cadence would break cross-competition comparability.)
+
 THE COMPLETE VERBAL SYSTEM (approved shorthand):
-- "Momentum measures the artist. Motion measures the label."
 - "Momentum Score tells you who is moving culture. Motion Score tells you who moved first."
 - "Momentum is the signal. Motion is the game."
 - "A&R Alpha converts Momentum into Motion."
 - "External platforms track artist activity. LabelHead tracks cultural foresight."
 - "Momentum is the box score. Motion is the game."
 ═══════════════════════════════════════════════════════
-### THE SCORING CANON — THREE-LAYER SYSTEM AT A GLANCE
-| Layer | Meaning | Product role |
-|---|---|---|
-| **Momentum Score** | The artist's real cultural momentum, independent of who picked them. | Artist profile, market signal, B2B-facing truth |
-| **A&R Alpha** | The competitor's foresight multiplier for a specific pick. | Competition mechanic and early-adopter protection |
-| **Motion Score** | `Momentum Score × A&R Alpha`. | Leaderboard currency |
-This table is the fast-reference summary. The full definitions, inputs, naming rules,
-and presentation patterns for each layer follow below — that detail governs whenever
-it is more specific than this summary.
+
+### THE DESIGN INVARIANT (NEW — v3.2, governs all scoring changes)
+
+**A competitor must never be able to win by being differentiated and wrong over
+consensus and right.** Across any simulated or real season, Motion variance
+attributable to Momentum (correctness) must exceed Motion variance attributable to
+A&R Alpha (positioning). This invariant is enforced by the simulation harness and
+is a release gate for any change to scoring math.
+
 ### SCORE 1 — MOMENTUM SCORE (artist metric)
+
 **Definition:**
 The artist's real cultural momentum, measured exclusively from external third-party
-data. Competition-agnostic. No game mechanic contamination. The industry metric.
+data. Competition-agnostic. No game mechanic contamination. No human editorial
+inputs. The industry metric.
+
+**Canonical architecture:**
+MOMENTUM SCORE
+  = f(Acceleration × 0.40,
+       Cultural Gravity × 0.35,
+       Longevity × 0.25)
+  External data only. Competition-agnostic.
+  No additive bonuses of any kind (v3.2).
+  Artist-facing metric. Primary B2B product.
+  Scale: 0–15. Raw components 0–100.
+
 **Components (3 only — do not add without founder approval):**
-| Component | Description |
-|---|---|
-| **Acceleration** | Rate of audience activity growth across streaming, social, and press — period over period. Baseline normalization lives inside this calculation and is NOT exposed as a separate component. |
-| **Longevity** | Sustained above-baseline heat across consecutive Cycles. Measures durability, not spikes. |
-| **Cultural Gravity** | Weighted mention velocity across 60+ tiered media sources. Captures what streaming numbers alone miss. Absolute threshold gate protects emerging artist tier integrity. |
-**Formula (CANONICAL — the literal computation behind the ratified weights):**
-Momentum is built from three raw 0–100 component scores, each weighted and rescaled
-onto the 0–15 display scale, plus one situational addend:
-```text
-Acceleration      raw × 0.40 / 100 × 15
-Cultural Gravity  raw × 0.35 / 100 × 15
-Longevity         raw × 0.25 / 100 × 15
-Direct Beef Bonus direct points on the 0–15 scale, applied when confirmed beef is active
-```
-This is the literal arithmetic behind the weights already ratified below (Acceleration
-0.40 / Cultural Gravity 0.35 / Longevity 0.25 — see "Decisions Now Resolved"). Each raw
-component score arrives on a 0–100 scale; dividing by 100, multiplying by its weight,
-and rescaling by 15 produces that component's contribution to the final 0–15 Momentum
-Score.
-**Direct Beef Bonus (CANONICAL — situational addend, NOT a fourth component):**
-A direct point addend on the same 0–15 Momentum scale, applied only when confirmed
-beef coverage meets the verification threshold (high-confidence narrative detection,
-not speculation). It rewards real, corroborated cultural conflict precisely because
-that is a Cultural-Gravity-shaped signal that a pure mention-velocity calculation can
-under-credit in the moment it matters most. It is additive and situational — it does
-not change the three-component weighting above, does not apply by default, and must
-never be described as a fourth scored component. Founder approval required to add any
-further bonus mechanics of this kind.
+
+| Component | Weight | Description |
+|---|---|---|
+| **Acceleration** | 0.40 | Rate of audience activity growth across streaming, social, and press — period over period. Baseline normalization lives inside this calculation. **(v3.3: source = C.1b LIVE — Songstats daily-series velocity + minimum-base guardrail, identity-verified artists, per-artist legacy fallback; Variant B release-aware baseline, factor 0.40; release floors removed. Certified SIM-04/SIM-07.)** |
+| **Cultural Gravity** | 0.35 | Weighted mention velocity across 60+ tiered media sources, subject to the Partner Integrity Rule. Absolute threshold gate protects emerging artist tier integrity. |
+| **Longevity** | 0.25 | Sustained above-baseline heat across consecutive Cycles. Measures durability, not spikes. (Decay-based persistence model approved for Season 2 — see backlog.) |
+
 **What it is NOT:**
-- Baseline Outperformance is NOT a standalone component (risk of double-counting
-  with Acceleration — removed in v3.0)
-- Surprise is NOT a component (retired — replaced by A&R Alpha as competition modifier)
+- Baseline Outperformance is NOT a standalone component (absorbed into Acceleration, v3.1)
+- directBeefBonus is RETIRED (v3.2). Beef is captured organically: an active beef
+  drives mention velocity (Cultural Gravity) and audience activity (Acceleration).
+  The data sees it on its own. No additive, no editorial confirmation input.
 - Ownership saturation does NOT influence this score under any circumstances
-**Where it lives:**
+
+**Beef Event Object (NEW — v3.2, display layer only):**
+Beef is a first-class platform event, never a score input.
+- Object: artist pair, start date, end date (nullable), status (active/resolved),
+  source citations (public, third-party)
+- Surfaces: artist card tag ("Active Beef: vs. [artist], since [date]"), Cultural
+  Event Window qualifying trigger (Season 2), partner content narrative surface,
+  sponsorable inventory unit
+- Zero pathway from this object to any score. Enforced at the schema level: the
+  scoring engine has no read access to beef_events.
+
+**Where Momentum lives:**
 - labelhead.co/score (free artist-facing score checker)
 - LFA agent dashboard (the north star agents optimize toward)
 - Artist cards in the competition draft pool
 - Label Intelligence API (primary B2B product)
 - Public artist profiles
 - All institutional buyer and press materials
+
 **Naming:** "Momentum Score" only. Never "Pure Momentum Score" (retired).
+
 **The moat argument — two layers:**
 Layer 1 (Formula Layer): External data inputs processed through proprietary composite
 methodology. Replicable in theory, defensible through IP in practice. Not the moat.
+
 Layer 2 (Behavioral Conviction Layer): Generated exclusively by the competition.
 Structured, timestamped picks from 500+ culturally informed competitors, verified
-against real-world outcomes, compounding across every Cycle and every season. Contains:
-- Pick timing curves (who identified artists at what ownership saturation before
-  streaming confirmed the thesis)
-- Consensus formation data (how quickly market agreement formed around artist archetypes)
-- A&R Alpha patterns (what pick profiles generated above-consensus competitive returns)
-- Motion Score outcomes over time
-The Google parallel: Google's algorithm uses publicly available websites. What
-competitors cannot replicate is the behavioral data from billions of searches that
-continuously trains the ranking system. LabelHead's external data inputs are replicable.
-The behavioral conviction layer is not. It has to be accumulated by running a
-competition that real people take seriously enough to compete in.
-**Deck language (Slide 9 — Market-Tested card):**
-"500+ culturally informed competitors pressure-test the Momentum Score every Cycle
-with real public picks and real stakes. Every outcome is verified against what
-actually happened.
-Each Cycle also generates a proprietary behavioral layer — pick timing, ownership
-curves, consensus formation, A&R Alpha, and Motion Score outcomes — that no external
-data provider can replicate. External platforms track artist activity. LabelHead
-tracks cultural foresight."
+against real-world outcomes, compounding across every Cycle and every season. Contains
+pick timing curves, consensus formation data, A&R Alpha patterns, Motion Score outcomes,
+and (v3.2) Conviction Theses — structured qualitative reasoning attached to timestamped
+predictions. The Google parallel holds: external data inputs are replicable; the
+behavioral conviction layer is not.
+
 ---
-### MODIFIER — A&R ALPHA (competition modifier)
+
+### MODIFIER — A&R ALPHA (competition modifier) — UPDATED v3.2
+
 **Definition:**
 The competition-layer modifier that converts Momentum Score into Motion Score.
 Measures the competitive foresight of the pick — how differentiated and early the
 label's identification of that artist was relative to the field at the time of drafting.
-**Inputs:**
-- Ownership saturation AT TIME OF PICK (calculated at moment of drafting, not current
-  rate — early adopter protection is non-negotiable)
-- Draft timing within the Cycle (how early in the amendment window)
-- Conviction pattern (consistency of hold vs. churn across recent Cycles)
-- Roster concentration (portfolio differentiation signal)
-**Output:** A decimal multiplier
-- Higher value = more differentiated/early pick
-- Lower value = consensus/late/obvious pick
-- 1.0 = exactly market consensus pick
-**Naming convention:**
-- Institutional/investor-facing: "A&R Alpha"
-- Competitor UX/platform copy: "A&R Alpha" or "A&R Edge" (acceptable in casual contexts)
-- "Surprise" is permanently retired
-**Visibility:** Competition-layer only. Not artist-facing in current architecture.
-Do not commit to "never visible to artists" — future product decisions may include
-simplified transparency features that benefit artists without contaminating Momentum Score.
-**B2B treatment:** A&R Alpha patterns are part of the proprietary behavioral conviction
-layer sold as enrichment intelligence within the Label Intelligence API. They are NOT
-the primary B2B metric.
+
+**Canonical architecture (v3.2 — supersedes 0.1–2.0 linear):**
+A&R ALPHA
+  = 0.7 + 0.8 × C, where C ∈ [0,1] is the weighted sub-component composite
+  Range: 0.7 (maximum-consensus pick) to 1.5 (maximum-differentiation pick)
+  Ownership sub-score uses a LOGARITHMIC curve — differentiation
+  is concentrated at the low-ownership end, where foresight lives.
+  Full curve definition and constants: SCORING_SPEC.md §2 (canonical).
+  NULL/missing ledger row → neutral fallback of exactly 1.0.
+  Captured at pick time. Never recomputed from current saturation.
+  Competition-layer only. Never artist-facing.
+
+**Why the compression (rationale of record):** at 0.1–2.0, Alpha's 20x dynamic range
+overwhelmed Momentum's ~3x practical spread among pool-eligible artists, making the
+leaderboard an ownership-arbitrage game. At 0.7–1.5, a maximum-differentiation pick
+earns up to ~2.1x the multiplier of a maximum-consensus pick — a decisive edge that
+cannot, by itself, carry a wrong call past a right one. This enforces the Design
+Invariant.
+
+**Inputs and sub-weights:**
+- Ownership saturation AT TIME OF PICK — dominant input (interim weight 0.6)
+- Draft timing within the Cycle (interim weight 0.2) — ZEROED for the initial
+  Week 1 draft (v3.2)
+- Conviction pattern — hold consistency vs. churn (interim weight 0.1)
+- Roster concentration — portfolio differentiation (interim weight 0.1)
+- Sub-weights RATIFIED (v3.3, 2026-06): ownership 0.6 / timing 0.2 / conviction 0.1 / concentration 0.1; `c_conviction` INERT (0.5) until Season 2's Conviction Modifier
+
+**Week 1 Batch Settlement (NEW — v3.2, canonical):**
+The initial draft settles as a simultaneous batch. Ownership saturation for all
+opening picks is computed ONCE, after the 48-hour post-Selection-Sunday window
+closes, and applied uniformly. draft_timing_score = 0 for all initial-draft picks.
+No competitor gains Alpha by submitting faster. The platform rewards cultural
+intelligence and timing — never speed. This rule is absolute.
+
+**Early Adopter Protection (CANONICAL — unchanged):**
+A&R Alpha is captured when an artist is added to a roster and preserved through
+later ownership increases. Alpha pays out only if the competitor holds that artist
+through the relevant lock or settlement period. If the artist is dropped before
+settlement, the captured Alpha is forfeited and the pick receives no Motion
+contribution for that period. Later ownership increases do not reduce the original
+picker's Alpha. Consensus can catch up, but it cannot erase early conviction.
+
+A separate bounded Conviction Modifier (1.00–1.15×) for uninterrupted multi-Cycle
+holds is approved for Season 2 and must never recalculate the original ownership basis.
+
+### Alpha Treatment by Pick State (unchanged)
+
+| Pick State | Treatment |
+|---|---|
+| Active pick with captured Alpha | Use captured Alpha at settlement |
+| Active pick, missing Alpha (legacy data gap) | Neutral 1.0 fallback |
+| Dropped/inactive pick before settlement | Zero Motion contribution — no fallback, no partial credit |
+| Replaced pick | Replacement artist scores on its own captured Alpha |
+
+**Capture completeness (v3.2 — launch gate):** 100% of picks, including initial
+client-side drafts, route through the capture endpoint. No pick may exist without
+a ledger row. The Motion==Momentum operational state described in v3.1 is closed
+out as a launch precondition, not tolerated into the season.
+
 ---
+
 ### SCORE 2 — MOTION SCORE (leaderboard currency)
+
 **Definition:**
 The competition-adjusted score that determines leaderboard ranking and prize pool
-outcomes. Generated by applying A&R Alpha to Momentum Score. Measures competitive
-roster value — how much value a label's pick of that artist generated this Cycle.
+outcomes. Generated by applying A&R Alpha to Momentum Score.
+
 **Formula:** Momentum Score × A&R Alpha = Motion Score
-**Where it lives:**
-- The LabelHead leaderboard (sole ranking currency)
-- Competitor-facing roster analytics
-- Cycle and season results
-- Competition UX throughout
-**Where it does NOT live:**
-- Label Intelligence API as primary metric
-- Artist-facing dashboards or score checker
-- Institutional buyer pitch materials as primary metric
-- Any B2B context where Momentum Score independence must be preserved
-**Critical distinction:**
-Motion Score is a competition result, not an artist quality metric. Institutional
-buyers must never conclude that artist quality is determined by game mechanics.
-Momentum Score independence is the foundation of the API's credibility.
-**Platform language:**
-- "My label got motion this Cycle."
-- "Who's leading in Motion?"
-- "That pick had Motion before anyone saw it."
-- "She has Momentum, but low Motion because everyone already owns her."
-**Naming:** "Motion Score" is the working canonical name. Trademark clearance
-must be completed before it appears in public-facing materials (see Pending Legal Items).
+
+**Cycle score composition (NEW — v3.2, canonical):**
+- CORE roster picks = 80% of the weekly Cycle score
+- FLEX roster picks = 20% of the weekly Cycle score
+- FLEX roster picks = 100% of the daily competition score
+- Leaderboard and roster Cycle totals rank on the Motion total:
+  total_points = Σ (artist Momentum × that pick's A&R Alpha), weighted 80/20 core/flex
+
+**The Field (UPDATED — v3.2):**
+"The field" — for scoring, leaderboard ranking, AND ownership saturation — is each
+label's latest roster (carry-forward), NOT a single calendar week. Engine and
+ownership resolve the field identically to the leaderboard (selectLatestRostersByUser).
+
+**Field Aging Rule (NEW — v3.2, canonical):** a roster exits the field after 3
+consecutive Cycles without confirmation. Confirmation = any roster change OR an
+explicit roster confirmation action. An aged-out roster: (a) stops scoring,
+(b) exits the ownership saturation denominator, (c) is marked Inactive on the
+standings (not deleted — the history is permanent). Any roster action by the
+competitor restores the roster to the field immediately, effective the next
+settlement. Rationale of record: indefinite carry-forward of abandoned rosters
+deflates the saturation denominator and silently inflates late-season Alpha —
+currency debasement.
+
+**Where Motion lives / does not live (unchanged):** sole leaderboard currency;
+never the primary B2B metric; never artist-facing; never in institutional pitch
+materials as primary metric. Motion Score is a competition result, not an artist
+quality metric. Momentum Score independence is the foundation of the API's credibility.
+
+## Competition · Prize Architecture (CANONICAL — v3.2 lineage, restored 2026-06-12)
+*Restored from v3.2. Only the subsections genuinely absent from this file are inlined here — roster-flex/amendment-window, competition formats, and prize tiers. The v3.2 block's LFA / GTM / Label Intelligence API content already lives in full as dedicated sections below this one and is NOT duplicated here. Where v3.2 touched a decision v3.3 re-disposed, the v3.3 ruling governs (⚠ inline).*
+
+### Roster flex & the Daily Amendment Window
+- Flex artists per format: **The Invitational — 1 flex** · **Founding Season — 2 flex**. Changeable once per day during the daily amendment window.
+- **Daily Amendment Window** — operational spec stands; **⚠ timing superseded by §7.1 (v3.3 deferral, founder-confirmed 2026-06-12)**: timing is FORMALLY DEFERRED; live interim is **12:00 UTC (= 8 AM EDT), UTC-pinned**. The 9:00–10:30 AM ET window (and a 12:00–1:30 PM ET alternative) are the v3.2 candidates, revisited before Season 2 ruleset lock.
+  - **Monday** window: BOTH core and flex picks eligible for change; the Monday window-close marks a **new Cycle**.
+  - Missing the window: the previous flex roster carries forward.
+
+### Competition Format Architecture
+- **THE INVITATIONAL** — Field **50** (invitation only) · **8 weeks / 8 Cycles** · Roster **4 core / 1 flex** · Grand Prize **$100,000** (anchor-sponsor funded only) · single-division, open leaderboard, no brackets, no elimination. **Selection Sunday:** both podcast hosts reveal rosters simultaneously; the rest of the Top 50 has a 48-hour window to finalize; the initial draft settles as a batch. **Midseason:** Week-4 formal report (top 10, biggest surprise, biggest miss).
+- **FOUNDING SEASON** — Field **up to 500** (the Invitational 50 included) · **12 weeks / 12 Cycles** · Roster **3 core / 2 flex** · Grand Prize **$50,000** (anchor-sponsor funded only) · every founding imprint carries **"Est. Founding Season 2026"** permanently.
+
+### Prize Pool Structure (three tiers)
+- **TIER 1 — Daily** ($500/day): winner = the competitor holding the **best Alpha-adjusted single pick** of the day — highest single-pick daily Motion contribution (that pick's daily Momentum × its captured Alpha); tie-break = earlier capture timestamp. *Rationale of record: highest-aggregate rewarded release-calendar spike-chasing; the single-pick formula makes the daily winner a foresight story, not a volume story.* Season total (84 days) **$42,000** · Sovereign operating budget.
+- **TIER 2 — Weekly Cycle** ($2,500/Cycle, split **60/25/15** across top 3): season total **$30,000** · Sovereign budget, offset by secondary sponsors from Week 4. **⚠ Quarters/Form Table restructuring FORMALLY DEFERRED per §7.2 (v3.3, founder-confirmed 2026-06-12)** to Season 2 planning (zero Invitational dependency); if ever adopted it must be decided and announced **before launch** — prize structure never changes mid-season.
+- **TIER 3 — Season Grand Prizes:** Invitational champion **$100,000** · Founding Season champion **$50,000** · funded by anchor sponsor at **100% pass-through, NEVER from raise capital**; never announced until the sponsor check clears.
+- **Net Sovereign prize cost (Tiers 1 & 2 only):** 2026: $16,500 | 2027: $114,500 | 2028: $177,000
+
 ---
-### UX PRESENTATION PATTERN — ARTIST CARD
-Never present Momentum Score and Motion Score as two peer scores of equal standing.
-Present as a conversion sequence:
-```
-Momentum Score: 91
-Cultural heat
-A&R Alpha: 0.63x
-Widely owned
-Motion Score: 57
-Roster value this Cycle
-```
-This three-line sequence resolves user confusion before it occurs.
----
-### RETIRED TERMINOLOGY — DO NOT USE
-| Retired Term | Replace With |
-|---|---|
-| "Surprise" (score component) | A&R Alpha (modifier, not component) |
-| "Competition Score" | Motion Score |
-| "Pure Momentum Score" | Momentum Score |
-| "A&R Edge" (primary) | A&R Alpha (Edge acceptable in casual UX only) |
-| "Baseline Outperformance" (standalone) | Absorbed into Acceleration methodology |
-| "Geist Mono" (typography) | Cabinet Grotesk only |
-| "Window" (competitor-facing) | "The Daily" or "Daily" |
-| "Scoring window" | "Daily competition" |
-| "Lock window" | "Daily lock" |
-| "Window results" | "Daily results" |
-| "liveWindowId" (API) | "liveDailyId" |
-| "window_rank" (API) | "daily_rank" |
----
-## Core Competition Mechanic (UPDATED v3.0)
-### Shared Artist Draft Pool (CRITICAL — NEVER REVERSE)
-Artists CAN be held by multiple competitors simultaneously. This is fundamental to
-A&R Alpha functioning correctly. Ownership saturation = the percentage of the field
-holding a given artist. The scarcity mechanic is information-based, not inventory-based.
-### Early Adopter Protection (CANONICAL)
-A&R Alpha is calculated based on the ownership rate AT THE TIME OF THE PICK — not the
-current ownership rate. A competitor who drafted an artist in Week 2 at 4% ownership
-earns their A&R Alpha based on 4% ownership throughout the season. This permanently
-rewards early adopters and is the mathematical foundation of the cultural foresight thesis.
-### Tiered Roster Mechanic (CANONICAL)
-**CORE ROSTER — Weekly Lock (conviction picks)**
-- The Invitational: 4 core artists
-- Founding Season: 3 core artists
-- Locked Monday 10:30 AM ET through following Monday 10:30 AM ET
-- Cannot be changed mid-week
-- Generates bulk of weekly Cycle score and season-long standing
-**FLEX ROSTER — Daily Lock (market awareness picks)**
-- The Invitational: 1 flex artist
-- Founding Season: 2 flex artists
-- Can be changed once per day during the daily amendment window
-- Generates daily competition score, contributes partially to weekly Cycle score
-### Daily Amendment Window (CANONICAL)
-**9:00 AM ET to 10:30 AM ET daily**
-- Monday window: BOTH core and flex picks eligible for change
-- Monday 10:30 AM ET = new Cycle begins
-- Missing the window: previous flex roster carries forward
-Note: "window" is acceptable here as it describes the amendment period,
-not a competition format. This is the roster decision window, not a
-scoring event.
----
-## Competition Format Naming (NEW — v3.1)
-### THE CANONICAL HIERARCHY
-| Format | Cadence | Status | Notes |
-|---|---|---|---|
-| **The Daily** | 24 hours | Live — Founding Season | Primary recurring competition |
-| **The Cycle** | 7 days | Canonical — unchanged | Weekly competitive unit |
-| **Season** | Full season | Canonical — unchanged | Prestige / cumulative ranking |
-| **Daily AM / Daily PM** | 12 hours | Reserved — future only | High-frequency format, not live |
-### THE DAILY — CANONICAL DEFINITION
-The Daily is the 24-hour competition format. One result per calendar day.
-"The Daily" is the branded format name. "daily competition" is the generic reference.
-### SCORING CADENCE (CRITICAL)
-The internal data pipeline runs every 12 hours for accuracy. This is an
-implementation detail and is NEVER surfaced to competitors. Competitor-facing
-competition cadence is 24 hours only — one Daily result per calendar day.
-The two 12-hour data collection periods aggregate into a single Daily result.
-"Window" as a technical term for the 12-hour data collection period is
-acceptable in internal engine code, variable names, admin dashboards, and
-code comments. It must NEVER appear in competitor-facing surfaces, API
-responses consumed by the frontend, or any public-facing copy.
-### CANONICAL PRODUCT LANGUAGE — THE DAILY
-Use these exact phrases in all competitor-facing surfaces:
-✅ USE:
-- "You're in today's Daily."
-- "The Daily locks in [timer]."
-- "Daily results are settling."
-- "You finished #18 in The Daily."
-- "Your Daily roster is set."
-- "Enter The Daily."
-- "Today's Daily"
-- "Yesterday's Daily"
-❌ DO NOT USE:
-- "The next Window opens..."
-- "Window results are pending..."
-- "You are entered in Window 042..."
-- "Scoring window closes..."
-- "Window · Daily" (old prize tier label)
-### CLOSING LINE
-"Momentum measures the artist. Motion measures the label.
-The Daily is where labels prove it."
----
-## Competition Format Architecture (CANONICAL)
-### THE INVITATIONAL (Elite Competition — CANONICAL NAME)
-- Field: 50 competitors, invitation only
-- Duration: 8 weeks (8 Cycles)
-- Roster: 4 core artists (weekly lock) / 1 flex artist (daily lock)
-- Grand Prize: $100,000 — anchor sponsor funded only. Never from raise capital.
-- Format: Single-division, open leaderboard. No brackets, no elimination.
-- Selection Sunday: Both podcast hosts reveal rosters simultaneously. Rest of Top 50
-  has 48-hour window to finalize.
-- Midseason: Week 4 formal report — top 10, biggest surprise, biggest miss
-### FOUNDING SEASON (Broader Platform)
-- Field: Up to 500 competitors. Invitational 50 included.
-- Duration: 12 weeks (12 Cycles)
-- Roster: 3 core artists (weekly lock) / 2 flex artists (daily lock)
-- Grand Prize: $50,000 — anchor sponsor funded only
-### Prize Pool Structure (CANONICAL — THREE TIERS)
-**TIER 1 — The Daily**
-- Prize: $500 per Daily
-- Winner: Highest 24-hour aggregate Motion Score across Founding Season competitors
-- Competition cadence: Once per calendar day (24-hour result)
-- Data pipeline: 12-hour internally — not surfaced to competitors
-- Season total (84 Dailies across 12 Cycles): $42,000
-- Funded by: Sovereign operating budget
-- Branded as: "The Daily · $500"
-**TIER 2 — The Cycle (Weekly)**
-- Prize: $2,500 per Cycle, split 60/25/15 across top 3
-- Season total (12 Cycles): $30,000
-- Funded by: Sovereign operating budget, offset by secondary sponsors from Week 4
-- Branded as: "The Cycle · $2,500"
-**TIER 3 — Season Grand Prizes**
-- The Invitational champion: $100,000
-- Founding Season champion: $50,000
-- Funded by: Anchor sponsor — 100% pass-through. NEVER from raise capital.
-- Never announced until sponsor check clears.
-- Branded as: "Season Title · $100,000" / "Season Title · $50,000"
-**Net Sovereign prize cost (Tiers 1 and 2 only):**
-2026: $16,500 | 2027: $114,500 | 2028: $177,000
----
+
 ## LabelHead for Artists (LFA) — Canonical Definition
+
+(Unchanged from v3.1 except where noted.)
+
 ### Core Premise
 Unsigned artists don't lack talent. They lack infrastructure. Every artist who breaks
 has a team — manager, publicist, release strategist, A&R advisor. That team is
 inaccessible before the deal. LFA breaks that loop.
+
 ### The Differentiation
-An artist using LFA is not improving abstract career metrics. They are building the
-Momentum Score that 500 culturally informed competitors use to draft them. This stakes
-mechanism cannot be replicated without the competition platform existing first.
-Lead with the competition. LFA follows.
+An artist using LFA is building the Momentum Score that 500 culturally informed
+competitors use to draft them. This stakes mechanism cannot be replicated without
+the competition platform existing first. Lead with the competition. LFA follows.
+
 ### GTM Sequencing (CANONICAL — NEVER REVERSE)
 1. Now: Score checker at labelhead.co/score — free, quiet, existing infrastructure
 2. Founding Season: Competition is entire public GTM thrust. LFA does not exist publicly.
 3. Season 2: LFA launches as named product with subscriptions open.
+
 ### Pricing
 - LFA Subscription: $299/month (starting tier)
-- Artist Portal (user-facing): $12.99/week per portal per subscriber
-- Revenue split: 70% artist / 30% Sovereign
+- Artist Portal: $12.99/week per portal per subscriber | 70% artist / 30% Sovereign
 - Artists pay nothing to create or maintain a portal
-### The 12 Agents (CANONICAL)
+
+### The 12 Agents (CANONICAL — unchanged)
 All agents act — they do not advise. Outbound actions require artist approval.
-| # | Agent | Function |
-|---|---|---|
-| 01 | Manager | Strategic direction, orchestration of other 11 agents |
-| 02 | Publicist | Press pitches, placement tracking |
-| 03 | Release Strategist | Optimal release windows from streaming velocity data |
-| 04 | DSP Pitch Agent | Editorial playlist consideration submissions |
-| 05 | A&R Intelligence Agent | Surfaces accelerating trends before market recognizes them |
-| 06 | Booking Coordinator | Support slots, festival submissions, showcases |
-| 07 | Social Strategist | Content timing and format recommendations |
-| 08 | Sync Licensing Agent | Placement opportunities, licensing inquiries |
-| 09 | Analytics Interpreter | Plain-language weekly reports |
-| 10 | Brand Partnership Scout | Brand alignment opportunities |
-| 11 | Legal Brief Agent | Contract term flags — NOT a lawyer |
-| 12 | Cultural Trend Monitor | Cultural moments relevant to artist's audience |
-### APPROVED GAP — Publishing Strategy Agent (Agent 13)
-Publishing ownership is the single most important financial decision a musician makes.
-No current agent addresses it. Should be added as Agent 13 or replace existing agent.
-### The Momentum Score as North Star
-Every agent decision is guided by one question: does this move the artist's Momentum
-Score? The score their agents optimize is the same score 500 competitors use to draft
-them. For the first time, an artist's career decisions and the industry's evaluation
-of them run on the same data.
+01 Manager | 02 Publicist | 03 Release Strategist | 04 DSP Pitch | 05 A&R Intelligence |
+06 Booking Coordinator | 07 Social Strategist | 08 Sync Licensing | 09 Analytics
+Interpreter | 10 Brand Partnership Scout | 11 Legal Brief (NOT a lawyer) |
+12 Cultural Trend Monitor
+
+**v3.2 note — agent guardrail:** LFA agents optimize Momentum Score through its
+three measured components. With directBeefBonus retired, no agent has any
+structural incentive to advise artists toward conflict. Agent guidance must never
+recommend manufacturing conflict as a score strategy.
+
+### APPROVED GAP — Publishing Strategy Agent (Agent 13) — unchanged
+
+### The Momentum Score as North Star — unchanged
+
 ---
-## GTM Strategy (CANONICAL)
+
+## GTM Strategy (CANONICAL — unchanged from v3.1)
+
 ### Option 1 — Primary Target (Joe Budden Podcast + The Breakfast Club)
 - Joe Budden Podcast: $75,000 cash + 1.0% Sovereign equity (84,416 shares at $0.77)
 - The Breakfast Club: $125,000 cash to iHeart + 0.75% to Charlamagne personally (63,312 shares)
 - Combined: $200K cash / 1.75% equity / $17M exit value at 12x ARR
+
 ### Option 2 — Secondary Target (Joe & Jada + Drink Champs)
-- Joe & Jada: $50K cash + 0.75% equity (Fat Joe and Jadakiss, 0.375% each)
-- Drink Champs: $60K cash + 0.75% equity (N.O.R.E. and DJ EFN, 0.375% each)
+- Joe & Jada: $50K cash + 0.75% equity | Drink Champs: $60K cash + 0.75% equity
 - Combined: $110K cash / 1.5% equity
+
 ### Selection Sunday (CANONICAL)
 Both shows go live within the same 2-hour window. Contractually required before
-any other deliverable activates. This is the cultural anchor event.
+any other deliverable activates.
+
 ### Key Contractual Deliverables (Top 5)
 1. Selection Sunday simulcast participation
 2. Weekly in-show Cycle commentary
 3. Score reaction content within 72 hours of Cycle results
 4. Artist pipeline activation — ask guests about their LabelHead score on air
 5. Cross-show rivalry episode minimum 2 per season
+
+**v3.2 note:** Deliverable 4 operates under the Partner Integrity Rule — partner
+coverage never feeds Cultural Gravity for artists the partner rosters.
+
 ---
-## Label Intelligence API — Full Architecture
+
+## Label Intelligence API — Full Architecture (unchanged from v3.1)
+
 ### Stream 7A — A&R and DSP Tier
-- Pricing: $500/month standard, $2,500/month enterprise
-- Primary B2B product: Momentum Score data (competition-agnostic)
-- Launch: Q3 2028
-### Stream 7B — Catalog Investor Tier (NEW — v3.0)
-For institutional catalog investors (Harbourview, Shamrock, Primary Wave, Tempo,
-Reservoir, Hipgnosis/BlackRock, Concord, Round Hill).
-**Product Components:**
-1. Historical Momentum Index — per-artist longitudinal score across all completed seasons
-2. Catalog Cohort Benchmarking — artist vs. peer cohort of similar genre/era/recognition
-3. Cultural Durability Rating — composite AAA through D for investment committee legibility
+$500/month standard, $2,500/month enterprise. Primary product: Momentum Score data
+(competition-agnostic). Launch Q3 2028.
+
+### Stream 7B — Catalog Investor Tier
+Historical Momentum Index | Catalog Cohort Benchmarking | Cultural Durability
+Rating (AAA–D). Standard $150K / Premium $300K / Enterprise $500K annual.
+Launch Q1 2028. Revenue: 2028 $712,500 | 2029 $1,935,000 | 2030 $3,105,000.
+Stream 7 combined: 2028 $792,500 | 2029 $2,220,000 | 2030 $3,789,000.
+
 **Critical:** Motion Score is NOT the primary B2B metric. Momentum Score is.
-A&R Alpha patterns and Motion Score outcomes enrich the behavioral intelligence layer
-but institutional buyers must never conclude artist quality is determined by game mechanics.
-**Pricing (annual contracts):**
-- Standard: $150,000/year
-- Premium: $300,000/year
-- Enterprise: $500,000/year
-- Blended average: $225,000/year
-**Revenue:** 2028: $712,500 | 2029: $1,935,000 | 2030: $3,105,000
-**Stream 7 Combined (A + B):**
-2028: $792,500 | 2029: $2,220,000 | 2030: $3,789,000
+**v3.2 reinforcement:** Momentum Score now contains zero editorial inputs of any
+kind. Every input traces to a third-party source neither side controls. This is
+a diligence-room asset — use it.
+
 ---
-## The Data Vision
+
+## The Data Vision (unchanged from v3.1)
+
 ### Founding Season Data Sources (v1 — Active)
 Spotify Web API, Last.fm, YouTube Data API v3, Shazam via RapidAPI,
 Apify TikTok Scraper (TIKTOK_SIGNAL_WEIGHT = 0.20 cap),
 Soundcharts (social signals), Genius, Ticketmaster, Wikipedia,
-60+ tiered media source registry (Cultural Gravity)
+60+ tiered media source registry (Cultural Gravity, subject to Partner Integrity Rule)
+
 ### Near-Term (Season 2+) — Approved
-Chartmetric API (pending license), Audiomack API (critical for Hip-Hop authenticity),
-TikTok sound adoption velocity (most predictive leading indicator)
+Chartmetric API (pending license), Audiomack API, TikTok sound adoption velocity
+
 ### Medium-Term
 Reddit API, SoundCloud API, Bandsintown API
+
 ### Long-Term
 BDS/Luminate radio airplay, sync licensing activity, live ticketing velocity,
 merchandise sales velocity, press mention sentiment analysis
+
 ### Back Catalog Mechanic ✅ APPROVED FOR SEASON 3+
-Separate Catalog League track for pre-streaming era artists. Curated draft pool by era.
-Note: "Surprise" component in catalog scoring will need to be re-evaluated under the
-new A&R Alpha architecture before implementation.
+Separate Catalog League track. A&R Alpha architecture must be evaluated for
+catalog context before implementation.
+
 ---
-## Revenue Stream Vision (Full Stack v3.0)
-| Stream | Timing | Notes |
-|---|---|---|
-| Anchor Sponsorship | Founding Season | Never from raise. Announced only when check clears. |
-| Secondary Sponsorships | Season 2 | Non-exclusive category packages |
-| Artist Portals | Season 2 | $12.99/week, 70/30 split |
-| LFA Subscriptions | Season 2 | $299/month, 12-agent service |
-| Analyst Tier | Season 2 | $19.99/month, advanced scoring data |
-| Press Correspondents | Season 2 | $99/month |
-| Verified Pro Membership | Season 3 | $199/year |
-| Label Intelligence API 7B | Q1 2028 | Catalog investor tier |
-| Label Intelligence API 7A | Q3 2028 | A&R and DSP tier |
-| LFA Label Pack | Season 3 | Indie label roster subscriptions |
-| Catalog League | Season 3 | Separate competition revenue |
-| Institutional Leagues | Season 4+ | Real labels field official teams |
-| LabelHead Live | Season 4+ | Annual event, ticketing, broadcast |
-| Brazen content layer | Season 4+ | Organic broadcast consequence at scale |
-| Data Archive Licensing | Season 4+ | Historical conviction data |
+
+## Revenue Stream Vision (unchanged from v3.1)
+
+| Stream | Timing |
+|---|---|
+| Anchor Sponsorship | Founding Season |
+| Secondary Sponsorships | Season 2 |
+| Artist Portals | Season 2 |
+| LFA Subscriptions | Season 2 |
+| Staff Pass / Analyst Tier ($19.99/mo) | Season 2 — product DEFINED v3.3 |
+| Press Correspondents ($99/mo) | Season 2 |
+| Verified Pro Membership ($199/yr) | Season 3 |
+| Label Intelligence API 7B | Q1 2028 |
+| Label Intelligence API 7A | Q3 2028 |
+| LFA Label Pack | Season 3 |
+| Catalog League | Season 3 |
+| Institutional Leagues | Season 4+ |
+| LabelHead Live | Season 4+ |
+| Brazen content layer | Season 4+ |
+| Data Archive Licensing | Season 4+ |
+
+**v3.2 addition (exploratory, not yet approved):** Beef/conflict event coverage as
+sponsorable inventory ("presented by" packages around active competition narratives).
+Verzuz precedent. Requires founder approval before any sponsor conversation.
+
+**THE STAFF PASS (NEW — v3.3, 2026-06-12, founder-ratified) — defines the previously-empty Analyst Tier:**
+The competitor-side intel subscription, **$19.99/mo**, unlocks the platform's named staff specialists on artist surfaces. One door, FOUR named specialists all unlocking together (NOT a ladder; expanded from 2→4 on 2026-06-12 after the Staff page revealed the full roster):
+- **Jordan Ellis — Head of A&R / Scout:** human interpretation of the machine signal. Structured read (Signal/Bull/Risk/Fit), inline-expand on the artist card.
+- **Marcus Webb — Director of Analytics:** the deep-visualization war room (Alpha-decay curve, Momentum×ownership positioning scatter, component-stacked bands, 12-month multi-source velocity overlays, field-percentile distributions). Opens as a full modal — self-selected destination for the analyst audience, segmented OFF the simplicity-gated default card.
+- **Market Intel — Competitive Intel:** competitive/field intelligence specialist (Staff Pass; ruled 2026-06-12).
+- **Trend Forecaster — Macro Signals:** macro trend specialist (Staff Pass; ruled 2026-06-12).
+Free tier sees all four greyed + one-line teasers; Staff Pass lights all four full-color together. **LAUNCH-HONESTY QUALIFIER (2026-06-12, BE-17 §3B finding):** the four-specialist roster is the ROADMAP, not day-one reality. Production today = ONE authoring scout (536 per-artist reads, fronted as Jordan/A&R) + Marcus's analytics (computed over certified data — real). Market Intel and Trend Forecaster have ~no authored corpus yet and ship as visible-but-`coming_soon`, NOT sold as delivering live reads until they author. The Staff Pass at launch truthfully BUYS Jordan's reads + Marcus's analytics; the other two are the front office being built. (Same honesty principle as the projectedBoost removal: never sell what doesn't yet work.)
+Canonical division this establishes: **machines score (Momentum — neutral, free, the B2B credibility asset); named humans interpret (Staff — paid).** This reinforces the Neutrality Principle rather than threatening it. Constraints that hold regardless of price: the three-class notification taxonomy (no alert builders) and no new scoring surfaces (the War Room visualizes certified scores, never mints new score types; "projected Momentum" etc. remain founder-deliberate backlog). CONSTITUTIONAL PRECONDITION: named-human byline over AI-assisted analysis requires an AI-authorship disclosure (route: labelhead-legal-compliance) before the named reports ship publicly. Other subscriptions are SEPARATE and unchanged: artist-side LFA $299/mo + Portals $12.99/wk; B2B API $500–$2,500/mo; **Press Correspondent / 'Press Room' $99/mo (a DISTINCT publishing/coverage desk — NOT folded into the Staff Pass; different job, 4.5× price; orchestrator judgment 2026-06-12, founder deferred)**; Verified Pro $199/yr. First specced in order FE-04 (§4B Jordan, §4C Marcus).
+
 ---
+
 ## Platform Architecture
+
 ### Typography (CANONICAL — NO EXCEPTIONS)
-- Cabinet Grotesk only — sole typeface across the entire platform
-- NO monospace fonts anywhere — Geist Mono is permanently retired
-- font-variant-numeric: tabular-nums for all live-updating numbers
+Cabinet Grotesk only. NO monospace fonts anywhere. font-variant-numeric:
+tabular-nums for all live-updating numbers.
+
 ### Brand Colors (Canonical)
-- #0A0A0A — dark background
-- #00E5FF — cyan accent (LabelHead)
-- #F2F0EB — off-white primary text
-- #C8A96A — gold (Sovereign/financial)
-- #D4A843 — amber
-- #3D3C3A — muted gray flat hex
+#0A0A0A dark background | #00E5FF cyan accent | #F2F0EB off-white text |
+#C8A96A gold (Sovereign/financial) | #D4A843 amber | #3D3C3A muted gray
+
+### Notification Taxonomy (NEW — v3.2, locked)
+Three classes only. Nothing else may be built.
+- **Signal** — an artist you hold or watchlist crossed a defined threshold
+- **Verdict** — Cycle settled; your result; one notification
+- **Window** — amendment window open/closing; opt-in only
+No streaks. No re-engagement bait. No rival-activity notifications.
+
 ### API Response Pattern (Scoring)
+
 ```
 GET /artists/:id/score
-  Returns Momentum Score only.
-  arAlpha: null, motionScore: null
-  Artist-facing context only.
+  Returns Momentum Score only. arAlpha: null, motionScore: null
 GET /artists/:id/score?context=competition
-  Returns all three values populated.
-  Competition-facing views only.
+  Returns all three values populated. Competition-facing views only.
 ```
+
+Full contract definitions: SCORING_SPEC.md §6 (canonical for engineering).
+
 ---
-## Sovereign Company Structure
-**Sovereign Co.** — Delaware C-Corp holdco
-**LabelHead, Inc.** — Competition platform + LFA (primary operating subsidiary)
-**Brazen, Inc.** — Content network (Season 4+ activation, NOT seed-funded)
-### Brazen Positioning
-Brazen is the organic content consequence of running a competition at scale — not a
-co-equal seed-funded property. Series A conversation, post-Founding Season.
-Marcus's creative domain. The pitch is: one marketplace, two sides — not two companies.
-### Seed Raise (CURRENT)
-**Amount:** $1,200,000 | **Pre-money:** $6,500,000 | **Post-money:** $7,700,000
-**Investor ownership:** 15.6% | **Implied share price:** $0.77 (10M shares)
-**Prize pool:** NOT in this raise. Anchor sponsor only.
+
+## Sovereign Company Structure (unchanged)
+
+Sovereign Co. (Delaware C-Corp holdco) | LabelHead, Inc. (competition + LFA) |
+Brazen, Inc. (Season 4+, NOT seed-funded, Marcus's domain).
+Seed: $1,200,000 at $6,500,000 pre / $7,700,000 post | 15.6% | $0.77/share (10M shares)
+Prize pool NOT in raise. Anchor sponsor only.
+
 ---
+
 ## Brand Voice (Canonical)
+
 Terse. Data-forward. No exclamation points. No hype language.
 The competitive unit is a **Cycle** (never "week").
 "Bag first, legacy second" is the GTM framing that resonates.
+
 ---
+
 ## Active Constraints (All Agents and Communications)
+
 - Never reference Timbaland in outbound communications
 - Marcus is available for all active GTM work — Brazen is his priority
 - Never state prize pool figures until anchor sponsor is confirmed
@@ -544,92 +555,150 @@ The competitive unit is a **Cycle** (never "week").
 - Brazen is not a music streaming platform
 - Never use Geist Mono anywhere
 - Motion Score is NOT the primary B2B metric — Momentum Score is
+- (v3.2) No editorial or discretionary inputs to Momentum Score, ever
+- (v3.2) No scoring pathway from beef_events — enforced at schema level
+- (v3.2) Partner media never feeds Cultural Gravity for artists the partner rosters
+- (v3.2) No mechanic may reward submission speed — Week 1 settles as a batch
+- (v3.2) Any scoring math change must pass the Design Invariant in simulation
+  before release
+
 ---
+
 ## Pending Legal Items
-**Motion Score trademark clearance:**
-"Motion Score" has prior usage in adjacent contexts — MotionApp uses it for ad
-creative analysis, MIT-linked research uses it in influencer video contexts. Neither
-constitutes a block in the music competition scoring context. However trademark
-clearance must be completed before Motion Score appears in any public-facing materials,
-press, or marketing. Currently treated as working canonical name only.
-Action required: Trademark clearance search before launch.
+
+**Motion Score trademark clearance** — required before any public-facing use.
+Currently working canonical name only.
+
 ---
-## Approved Future Features Backlog (v3.0)
+
+## Approved Future Features Backlog (v3.2)
+
 | Feature | Season Target | Status | Notes |
 |---|---|---|---|
-| **Back Catalog / Catalog League** | Season 3 | ✅ Approved | Separate track; A&R Alpha architecture needs evaluation for catalog context |
-| **Tiered Roster (Core + Flex)** | Founding Season | ✅ Canonical | 4/1 Invitational, 3/2 Founding Season |
-| **The Invitational (Top 50)** | Founding Season | ✅ Canonical | 8-week, 50-person, $100K prize |
-| **The Daily (24-hour competition)** | Founding Season | ✅ Canonical | Replaces "Window" — 24-hour cadence, 12-hour pipeline internal only |
-| **Daily AM / Daily PM** | Future | 🔵 Reserved | 12-hour high-frequency format — NOT Founding Season |
-| **LFA Score Checker** | Live Now | ✅ Live | labelhead.co/score, Momentum Score only |
+| **Call Record object** | Founding Season | ✅ Approved v3.2 | Shareable card; launch scope |
+| **Settlement P&L Ledger** | Founding Season | ✅ Approved v3.2 | Launch scope |
+| **Draft pool scatter (Momentum × ownership)** | Founding Season | ✅ Approved v3.2 | Default pool view; onboarding |
+| **"Est. Founding Season 2026" mark** | Founding Season | ✅ Approved v3.2 | Permanent on imprint + standings |
+| **Regional divisions (display layer)** | Founding Season | ✅ Approved v3.2 | Groups of 10; no new scoring |
+| **Beef Event Object** | Founding Season | ✅ Approved v3.2 | Display only; no score pathway |
+| **Field Aging Rule** | Founding Season | ✅ Approved v3.2 | 3-Cycle confirmation threshold |
+| **Partner Integrity Rule** | Founding Season | ✅ Approved v3.2 | Launch gate, pre-Selection Sunday |
+| **Quarters + Form Table** | Season 2 planning | ⏸️ FORMALLY DEFERRED (2026-06-12) | Presentation-layer; zero Invitational dependency |
+| **Tiered Roster (Core + Flex)** | Founding Season | ✅ Canonical | 4/1 Invitational, 3/2 Founding; 80/20 split |
+| **The Invitational (Top 50)** | Founding Season | ✅ Canonical | 8-week, 50-person, $100K |
+| **Daily Competition** | Founding Season | ✅ Canonical | $500/day; v3.2 single-pick formula |
+| **LFA Score Checker** | Live Now | ✅ Live | Momentum Score only |
 | **LFA 12-Agent Service** | Season 2 | ✅ Approved | $299/month |
 | **Publishing Strategy Agent (13)** | Season 2 | ✅ Approved | Most important LFA gap |
-| **Artist Portal Subscriptions** | Season 2 | ✅ Approved | $12.99/week, 70/30 split |
-| **Label Intelligence API 7A** | Q3 2028 | ✅ Approved | A&R and DSP tier |
-| **Label Intelligence API 7B** | Q1 2028 | ✅ Approved | Catalog investor tier |
-| **Cultural Durability Rating (AAA-D)** | Season 3 | ✅ Approved | For catalog investor API |
-| **Positional drafting** | Season 2 | ✅ Approved | Emerging/Rising/Established/Legacy/Wildcard |
-| **Genre-specific leaderboards** | Season 2 | ✅ Approved | Hip-Hop, R&B, Global tracks |
-| **Multi-week roster locks** | Season 2 | ✅ Approved | Higher risk/reward |
-| **Audiomack integration** | Season 2 | ✅ Approved | Critical for Hip-Hop authenticity |
-| **TikTok sound adoption data** | Season 2 | ✅ Approved | Most predictive leading indicator |
+| **Conviction Modifier** | Season 2 | ✅ Approved | Bounded 1.00–1.15×; never recalculates basis |
+| **Conviction Thesis** | Season 2 | ✅ Approved v3.2 | Sealed until lock, then permanent/public |
+| **Cultural Event Window** | Season 2 | ✅ Approved v3.2 | Flex-only, max 2/Cycle, 24hr, declared |
+| **Conviction Override** | Season 2 | ✅ Approved v3.2 | One mid-week core change per season |
+| **Signing Event mechanic** | Season 2 | ✅ Approved v3.2 | Graduation settlement scaled by Alpha |
+| **Longevity decay model** | Season 2 | ✅ Approved v3.2 | Half-life persistence replaces streak logic |
+| **Acceleration expectations model** | LIVE | ✅ SHIPPED EARLY (v3.3) | Variant B release-calendar adjustment, factor 0.40, certified + in production |
+| **New-artist bootstrapping** | Season 2 | ✅ Approved v3.2 | Provisional status or cohort baseline |
+| **Cross-source corroboration** | Season 2 | ✅ Approved v3.2 | 2+ source families confirm spikes |
+| **A&R Rating (skill metric)** | S1 quiet / S2 public | ✅ Approved v3.2 | Bayesian, cross-season, separate from standings |
+| **Producer graph (intel layer)** | Season 2 intel / S3 score | ✅ Approved v3.2 | Unscored Phase 1; validate before promoting |
+| **Regional Scene Index** | Season 2 intel | ✅ Approved v3.2 | Phase as intel first |
+| **Earned imprint reveal** | Season 2 | ✅ Approved v3.2 | Opt-in identity claim at defined achievement |
+| **Artist Portal Subscriptions** | Season 2 | ✅ Approved | $12.99/week, 70/30 |
+| **Positional drafting** | Season 2 | ✅ Approved | |
+| **Genre-specific leaderboards** | Season 2 | ✅ Approved | Track-configurable weights REQUIRED first |
+| **Multi-week roster locks** | Season 2 | ✅ Approved | |
+| **Audiomack integration** | Season 2 | ✅ Approved | |
+| **TikTok sound adoption data** | Season 2 | ✅ Approved | |
 | **Chartmetric API** | Season 2 | ✅ Approved | Pending license |
-| **LFA Label Pack** | Season 3 | ✅ Approved | Indie label roster subscriptions |
-| **Head-to-head challenge format** | Season 3 | ✅ Approved | Two competitors, one matchup |
-| **Draft class system** | Season 3 | ✅ Approved | Annual intake of newly eligible artists |
-| **Sync licensing as scoring signal** | Season 3 | ✅ Approved | TV/film placements as latent demand |
-| **Institutional Leagues** | Season 4 | ✅ Approved | Real labels field official teams |
-| **LabelHead Live** | Season 4 | ✅ Approved | Annual in-person event |
-| **Brazen content layer** | Season 4+ | ✅ Approved | Marcus's domain, organic consequence |
-| **Radio airplay (BDS)** | Season 3 | 🔵 Exploring | High cost, legacy infrastructure |
-| **Live ticketing velocity** | Season 3 | 🔵 Exploring | Pre-sale demand as cultural signal |
+| **Label Intelligence API 7A / 7B** | 2028 | ✅ Approved | |
+| **Cultural Durability Rating** | Season 3 | ✅ Approved | |
+| **LFA Label Pack** | Season 3 | ✅ Approved | |
+| **Head-to-head challenge** | Season 3 | ✅ Approved | |
+| **Draft class system** | Season 3 | ✅ Approved | Requires bootstrapping model |
+| **Sync licensing signal** | Season 3 | ✅ Approved | |
+| **Publication institutional imprints** | Season 3+ | ⏸️ Held | Blocked on Partner Integrity Rule surviving a season |
+| **Institutional Leagues** | Season 4 | ✅ Approved | |
+| **LabelHead Live** | Season 4 | ✅ Approved | |
+| **Brazen content layer** | Season 4+ | ✅ Approved | |
+| **Radio airplay (BDS)** | Season 3 | 🔵 Exploring | |
+| **Live ticketing velocity** | Season 3 | 🔵 Exploring | |
 | **Motion Score trademark** | Pre-launch | ⚠️ Pending | Legal clearance required |
+
 ---
-## Decisions Now Resolved (v3.1)
-- ✅ Scoring architecture: Three-layer system (Momentum Score, A&R Alpha, Motion Score)
-- ✅ "Surprise" retired, replaced by A&R Alpha as competition-layer modifier only
-- ✅ Momentum Score: 3 components only (Acceleration, Longevity, Cultural Gravity)
-- ✅ Momentum Score weights: Acceleration 0.40 / Longevity 0.25 / Cultural Gravity 0.35
-- ✅ Momentum Score formula (Scoring Canon): each raw 0–100 component score is weighted
-  and rescaled onto the 0–15 display scale via `raw × weight / 100 × 15`; Direct Beef
-  Bonus is applied as a direct, situational point addend on that same 0–15 scale when
-  confirmed beef coverage meets the verification threshold — not a fourth component
-- ✅ Cultural Gravity = Narrative engine (renamed, calculation preserved)
-- ✅ Baseline Outperformance: NOT a standalone component
-- ✅ Shared artist draft pool (not exclusive picks — fundamental to A&R Alpha)
-- ✅ Artist portals: 70% artist / 30% Sovereign
-- ✅ LFA pricing: $299/month agent service; $12.99/week portal
-- ✅ Competition format: The Invitational (50) + Founding Season (500)
-- ✅ Raise amount: $1,200,000
-- ✅ Brazen: Season 4+ organic consequence, not seed-funded
-- ✅ Typography: Cabinet Grotesk only, no Geist Mono
-- ✅ Motion Score is competition-layer output, NOT primary B2B metric
-- ✅ Momentum Score is competition-agnostic, primary B2B metric
-- ✅ Label Intelligence API: Stream 7A (A&R/DSP) + Stream 7B (catalog investors)
-- ✅ "Window" retired from all competitor-facing surfaces
-- ✅ "The Daily" is the canonical 24-hour competition format name
-- ✅ Competition cadence: 24-hour Daily results (12-hour data pipeline internal only)
-- ✅ Daily AM / Daily PM: reserved for future — NOT implemented in Founding Season
-- ✅ Dual engine consolidated: window engine (v5) is sole source of truth
-- ✅ compute-scores.js deprecated — window engine absorbs all its responsibilities
-- ✅ Historical picks: null ownershipSaturationAtTimeOfPick → 1.0 neutral A&R Alpha fallback
-- ✅ New picks: ownershipSaturationAtTimeOfPick written at pick creation time
+
+## Decisions Now Resolved (v3.2)
+
+All v3.1 resolutions carry forward, plus:
+- ✅ A&R Alpha: 0.7–1.5 range, logarithmic ownership curve (supersedes 0.1–2.0)
+- ✅ Cycle score split: core 80% / flex 20%; flex 100% of daily
+- ✅ Field Aging: 3-Cycle confirmation threshold; inactive rosters exit denominator
+- ✅ directBeefBonus retired; Beef Event Object adopted (display only)
+- ✅ Daily prize: best Alpha-adjusted single pick formula
+- ✅ Week 1 batch settlement; draft timing zeroed for initial draft
+- ✅ Partner Integrity Rule adopted as launch gate
+- ✅ Design Invariant adopted as release gate for scoring changes
+- ✅ Capture completeness (100% of picks through ledger) is a launch precondition
+- ✅ Call Record and Settlement P&L Ledger in Founding Season launch scope
+- ✅ Notification taxonomy locked: Signal / Verdict / Window
+
+**v3.3 resolutions (2026-06-12, all founder-ratified — technical scope):**
+- ✅ A&R Alpha sub-weights ratified (0.6/0.2/0.1/0.1); ALPHA_MAX 1.5 confirmed
+- ✅ Acceleration source: C.1b promoted and LIVE (full constitutional path; certified)
+- ✅ Variant B factor 0.40; release floors removed
+- ✅ cycle_rank semantics canonical (single-count, ≤W bound, competition 1-2-2-4 tie-break, exact equality)
+- ✅ Full-scope rank repair executed (scope = re-measured at execute time; 542 rows; 0 pending verified)
+- ✅ Narrative dedup (idempotent clustering + rollup max-guard) certified + deployed
+- ✅ Identity doctrine canonical; census CLEAN; WESTSIDE BOOGIE override; Babysantana UNVERIFIED; Sterling Hull RETIRED
+- ✅ Gate T5.2 → T5.2′ per Law 7; Phase 1 CLOSED (T5-R4 GREEN)
+- ✅ Delta-attestation cadence: per-deploy sweeps
+- ⏸️ Quarters + Form Table — FORMALLY DEFERRED to Season 2 planning
+- ⏸️ Amendment-window timing — FORMALLY DEFERRED (interim: UTC-pinned 12:00; revisit pre-Season-2 lock)
+
 ## Decisions Still Requiring Founder Input
+
+- [x] ~~A&R Alpha sub-weights ratification~~ — RATIFIED v3.3 (0.6/0.2/0.1/0.1)
+- [x] ~~Quarters + Form Table~~ — FORMALLY DEFERRED to Season 2 planning (v3.3)
+- [x] ~~Amendment window timing~~ — FORMALLY DEFERRED; UTC-pinned 12:00 interim (v3.3)
+- [ ] Founding Season open: clean-slate disposition of preseason results (recommended, undecided) + the moment Law 1 (no mid-season scoring changes) binds
 - [ ] Whether A&R Alpha is ever surfaced to artists in simplified form
 - [ ] Motion Score trademark clearance confirmation
-- [ ] Precise A&R Alpha formula parameters (ownership curve shape, timing decay function, roster concentration cap)
 - [ ] Whether Catalog League uses A&R Alpha or a modified version
 - [ ] Publishing Strategy Agent: replace existing or add as 13th
-- [ ] LFA tier structure above $299/month
+- [x] ~~Analyst Tier ($19.99/mo) product definition~~ — RESOLVED v3.3: the Staff Pass (Jordan + Marcus). See Revenue Stream Vision.
+- [ ] LFA tier structure above $299/month (artist-side; still open — distinct from the Staff Pass)
+- [ ] Staff Pass: future premium split (Scout-only vs Analytics-only) — deferred; revisit on subscription data
 - [ ] Selection Sunday broadcast date relative to Founding Season open
+- [ ] Beef-adjacent sponsorship packages (exploratory — approve before any conversation)
+
 ---
+
+## Phase 1 Engineering Record (v3.3 — 2026-06-12) — TECHNICAL CANON
+
+*This section is the engineering layer only. It governs implementation; the business strategy above governs the company. Where deep detail is needed: SCORING_SPEC.md v1.1 (repo, canonical for engineering) and `sim/reports/` (certificates, byte-verbatim).*
+
+**Phase 1 CLOSED:** T5-R4 GREEN (2026-06-12) — zero replay/artist/value/cycle-rank mismatches, both audited cycles (#6 `60dbeed2` legacy-ref, #8 `8d58e04e` c1-ref). Production: `v3-apple @ 7609611`, Railway, `ACCELERATION_SOURCE=c1` live since 2026-06-11 19:06 UTC.
+
+**The five-rider certified boundary (SIM-07 full certificate on `7609611`):** (1) narrative clustering idempotency (status-agnostic candidate load; token-similarity/normalized-label merge; no `event_type` in any identity key); (2) rollup max-guard (one max-contribution representative per logical event; identity for clean artists; monotonic); (3) identity-validator hardening (name hard-gate + alias allowlist + trusted-anchor relaxation); (4) cycle_rank single-count fix + competition tie-break; (5) ≤W aggregation bound (normative at every compute time, incl. historical re-scores). Certificate gates: rotation ≤−2% / win 0% (two seed sets), foresight cost ≤0.5% (measured −0.33/−0.35%), Momentum share ≥0.95 (0.97 @ 100%), top-decile Alpha 0.25–0.40 (0.32).
+
+**Rank semantics (first canonical definition):** `cycle_rank` = standing through window W; peer set = rosters with rows in the cycle ≤ W; aggregation = Σ total_points over windows ≤ W, each counted exactly once; tie-break = standard competition ranking (1-2-2-4), exact equality, no epsilon; derived display value — no settlement economics depend on it. `leaderboard_cache.rank` is a distinct, separately-governed surface (semantics review logged).
+
+**Identity doctrine (canonical):** identity is never auto-guessed — machines propose with evidence (independent anchor, contaminant-excluded, refuse-on-ambiguity), humans ratify per row; validator expectations derive from trusted sources; embed verification budgeted into every pass; dossier hint-weighting hardening is a precondition of the next identity pass. Census CLEAN (0 mis-resolutions, 0 duplicates; 12,171 victim rows quarantined at the data layer — scoring views exclude by construction).
+
+**The T5 lineage (the audit that audited itself):** T5 RED (instrument fault) → T5.2′ ratified per Law 7 (stricter: recompute-from-persisted-inputs, bit-identical) → T5-R2 RED (genuine defect → BE-14/15) → T5-R3 RED (correct sequencing refusal) → T5-R4 GREEN. Settlement value-math bit-identical through four consecutive audits. T5.2′ residual honestly named: input-capture fidelity → contemporaneous-snapshot debt item (recommended post-Invitational). T5.6-S registered at window #9.
+
+**Process canon earned this phase:** evidence-latched preconditions (quoted evidence, never assertion); founder-as-second-instrument ("a write the script intends is a write the script confirms"); deploy-state founder-confirmed, never inferred; one tested definition, never two implementations; display layer never manufactures what the platform hasn't earned; gated admin tooling = B4 pattern (dry-run default, programmatic dry-run/execute parity); per-deploy attestation sweeps; `sim/reports/` version-controlled byte-verbatim.
+
+**The thesis, measured:** pure foresight beats calendar-reading by **+19.6 points, 100/100 seasons, both seed sets** (SIM-04-a, c1 config). 
+
+**Open engineering tracks at v3.3 cut:** BE-16 (apply SCORING_SPEC v1.1 + reconcile tooling branches + archive reports) · BE-13-R3 step 7 (cosmetic embeds, founder-run) · BE-12 (historical-data exposure endpoints → FE PR-C) · T5.6-S (window #9) · debt register in the v3.4 staging ledger (north-star-v33-staging-ledger skill).
+
+---
+
 ## How to Update This Document
+
 1. Add approved features to the Approved Future Features Backlog
 2. Update relevant sections when core mechanics change
 3. Note version and date
 4. Do NOT add anything without explicit founder approval
-Version 3.1 supersedes all prior versions across all instances. The Scoring Canon
-formula reference (raw component weighting + Direct Beef Bonus) was merged into the
-SCORE 1 — MOMENTUM SCORE section as part of this revision; it completes, rather than
-contradicts, the v3.1 weight ratification already recorded under "Decisions Now Resolved."
+
+Version 3.3 supersedes all prior versions across all instances. (v3.3 = v3.2's full business canon, unchanged, + the Phase 1 engineering ratifications marked above. ⚠ One recovery gap from the v3.2 restoration is marked inline at original lines 310–442 — restore that block from the founder's source copy.)
