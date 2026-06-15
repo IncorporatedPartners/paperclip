@@ -31,6 +31,7 @@ import {
   isGeminiUnknownSessionError,
   parseGeminiJsonl,
 } from "./parse.js";
+import { ensurePaperclipGeminiSettings } from "./settings.js";
 import { firstNonEmptyLine } from "./utils.js";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
@@ -76,48 +77,6 @@ function renderApiAccessNote(env: Record<string, string>): string {
 
 function geminiSkillsHome(): string {
   return path.join(os.homedir(), ".gemini", "skills");
-}
-
-/**
- * Pre-trust a directory in `~/.gemini/settings.json` so Gemini CLI v0.35+
- * does not block on the interactive "Do you trust the files in this folder?"
- * prompt when running non-interactively (stdin=ignore). Without this the
- * subprocess waits for input that never arrives and exits with code 1.
- */
-async function ensureGeminiTrustedDirectory(
-  onLog: AdapterExecutionContext["onLog"],
-  directory: string,
-): Promise<void> {
-  const settingsPath = path.join(os.homedir(), ".gemini", "settings.json");
-  try {
-    await fs.mkdir(path.dirname(settingsPath), { recursive: true });
-
-    let settings: Record<string, unknown> = {};
-    try {
-      const raw = await fs.readFile(settingsPath, "utf8");
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        settings = parsed as Record<string, unknown>;
-      }
-    } catch {
-      // File missing or invalid JSON — start fresh
-    }
-
-    const trusted: string[] = Array.isArray(settings.trustedDirectories)
-      ? (settings.trustedDirectories as unknown[]).filter((d): d is string => typeof d === "string")
-      : [];
-
-    if (!trusted.includes(directory)) {
-      settings.trustedDirectories = [...trusted, directory];
-      await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf8");
-      await onLog("stderr", `[paperclip] Trusted Gemini directory: ${directory}\n`);
-    }
-  } catch (err) {
-    await onLog(
-      "stderr",
-      `[paperclip] Warning: could not update Gemini trusted directories in ${settingsPath}: ${err instanceof Error ? err.message : String(err)}\n`,
-    );
-  }
 }
 
 /**
@@ -202,11 +161,10 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const effectiveWorkspaceCwd = useConfiguredInsteadOfAgentHome ? "" : workspaceCwd;
   const cwd = effectiveWorkspaceCwd || configuredCwd || process.cwd();
   await ensureAbsoluteDirectory(cwd, { createIfMissing: true });
-  // Pre-trust the workspace so Gemini CLI v0.35+ doesn't block on the
-  // interactive folder-trust prompt when running non-interactively.
-  await ensureGeminiTrustedDirectory(onLog, cwd);
-  // Also trust the Paperclip root so all agent home paths are covered.
-  await ensureGeminiTrustedDirectory(onLog, "/paperclip");
+  await ensurePaperclipGeminiSettings(onLog, {
+    trustedDirectories: [cwd, "/paperclip"],
+    suppressThoughtsModel: model,
+  });
 
   const geminiSkillEntries = await readPaperclipRuntimeSkillEntries(config, __moduleDir);
   const desiredGeminiSkillNames = resolvePaperclipDesiredSkillNames(config, geminiSkillEntries);
@@ -257,6 +215,9 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   for (const [key, value] of Object.entries(envConfig)) {
     if (typeof value === "string") env[key] = value;
   }
+  if (!hasNonEmptyEnvValue(env, "GEMINI_CLI_NO_RELAUNCH")) {
+    env.GEMINI_CLI_NO_RELAUNCH = "true";
+  }
   if (!hasExplicitApiKey && authToken) {
     env.PAPERCLIP_API_KEY = authToken;
   }
@@ -265,6 +226,9 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       (entry): entry is [string, string] => typeof entry[1] === "string",
     ),
   );
+  if (env.GEMINI_CLI_NO_RELAUNCH === "true") {
+    await onLog("stderr", "[paperclip] Disabled Gemini relaunch via GEMINI_CLI_NO_RELAUNCH=true\n");
+  }
   const billingType = resolveGeminiBillingType(effectiveEnv);
   const runtimeEnv = ensurePathInEnv(effectiveEnv);
   await ensureCommandResolvable(command, cwd, runtimeEnv);
@@ -420,6 +384,9 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const commandNotes = (() => {
     const notes: string[] = ["Prompt is passed to Gemini via --prompt for non-interactive execution."];
     notes.push("Added --approval-mode yolo for unattended execution.");
+    if (env.GEMINI_CLI_NO_RELAUNCH === "true") {
+      notes.push("Forced GEMINI_CLI_NO_RELAUNCH=true to avoid Gemini self-relaunch in headless runs.");
+    }
     if (!instructionsFilePath) return notes;
     if (instructionsPrefix.length > 0) {
       notes.push(
