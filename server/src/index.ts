@@ -71,6 +71,55 @@ export interface StartedServer {
   databaseUrl: string;
 }
 
+// Network error codes that indicate the database host is not yet reachable
+// (DNS not resolvable, connection refused/reset, etc.) rather than a fatal
+// misconfiguration. These are worth retrying briefly during startup.
+const TRANSIENT_DB_CONNECT_CODES = new Set([
+  "ENOTFOUND",
+  "EAI_AGAIN",
+  "ECONNREFUSED",
+  "ECONNRESET",
+  "ETIMEDOUT",
+  "EHOSTUNREACH",
+]);
+
+function isTransientConnectError(err: unknown): boolean {
+  for (let cur: unknown = err; cur != null; cur = (cur as { cause?: unknown }).cause) {
+    const code = (cur as { code?: unknown }).code;
+    if (typeof code === "string" && TRANSIENT_DB_CONNECT_CODES.has(code)) return true;
+  }
+  return false;
+}
+
+/**
+ * Runs an initial database operation, retrying transient connection failures
+ * for a bounded window. Guards against platform private-networking races where
+ * the DB host (e.g. postgres.railway.internal) is briefly unresolvable right
+ * after the container boots. Tunable via PAPERCLIP_DB_CONNECT_RETRY_MS
+ * (total window, default 30000) and PAPERCLIP_DB_CONNECT_RETRY_INTERVAL_MS
+ * (delay between attempts, default 2000).
+ */
+async function connectWithRetry<T>(op: () => Promise<T>): Promise<T> {
+  const totalMs = Number(process.env.PAPERCLIP_DB_CONNECT_RETRY_MS ?? 30000);
+  const intervalMs = Number(process.env.PAPERCLIP_DB_CONNECT_RETRY_INTERVAL_MS ?? 2000);
+  const deadline = Date.now() + (Number.isFinite(totalMs) ? totalMs : 30000);
+  let attempt = 0;
+  for (;;) {
+    attempt += 1;
+    try {
+      return await op();
+    } catch (err) {
+      if (!isTransientConnectError(err) || Date.now() >= deadline) throw err;
+      const code = (err as { code?: string }).code;
+      logger.warn(
+        { attempt, code, retryInMs: intervalMs },
+        "Database not reachable yet; retrying connection during startup",
+      );
+      await new Promise((r) => setTimeout(r, Number.isFinite(intervalMs) ? intervalMs : 2000));
+    }
+  }
+}
+
 export async function startServer(): Promise<StartedServer> {
   let config = loadConfig();
   if (process.env.PAPERCLIP_SECRETS_PROVIDER === undefined) {
@@ -253,8 +302,15 @@ export async function startServer(): Promise<StartedServer> {
     | { mode: "external-postgres"; connectionString: string }
     | { mode: "embedded-postgres"; dataDir: string; port: number };
   if (config.databaseUrl) {
-    migrationSummary = await ensureMigrations(config.databaseUrl, "PostgreSQL");
-  
+    // On platforms with private networking (e.g. Railway), the database host
+    // (postgres.railway.internal) may not be resolvable for the first few
+    // seconds after the container boots. Retry transient connection failures
+    // for a bounded window so a startup race doesn't crash the deploy; a
+    // genuinely bad URL still surfaces once the window is exhausted.
+    migrationSummary = await connectWithRetry(() =>
+      ensureMigrations(config.databaseUrl!, "PostgreSQL"),
+    );
+
     db = createDb(config.databaseUrl);
     logger.info("Using external PostgreSQL via DATABASE_URL/config");
     activeDatabaseConnectionString = config.databaseUrl;
